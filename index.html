@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projeto Abelhas</title>
+    <style>
+        body {
+            background-color: #181818;
+            color: #fff;
+            font-family: sans-serif;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            padding: 20px;
+        }
+
+        .box {
+            background-color: #2d2d2d;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px;
+            width: 300px;
+            text-align: center;
+        }
+
+        .box h2 {
+            color: #00d8ff;
+            margin-bottom: 15px;
+        }
+
+        .gauge {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .gauge-value {
+            width: 70px;
+            font-size: 24px;
+            color: #00ff88;
+        }
+
+        .chart {
+            width: 100%;
+            height: 120px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Caixa Ambiente -->
+        <div class="box" id="ambiente">
+            <h2>Ambiente</h2>
+            <div class="gauge">
+                <span>Temperatura</span>
+                <span class="gauge-value" id="temp-ambiente">-- °C</span>
+            </div>
+            <div class="gauge">
+                <span>Umidade</span>
+                <span class="gauge-value" id="umid-ambiente">-- %</span>
+            </div>
+            <div class="gauge">
+                <span>Pressão</span>
+                <span class="gauge-value" id="press-ambiente">-- hPa</span>
+            </div>
+            <canvas class="chart" id="ambiente-chart"></canvas>
+        </div>
+        
+        <!-- Caixa 9 -->
+        <div class="box" id="caixa9">
+            <h2>Caixa 9</h2>
+            <div class="gauge">
+                <span>Temperatura</span>
+                <span class="gauge-value" id="temp-caixa9">-- °C</span>
+            </div>
+            <div class="gauge">
+                <span>Umidade</span>
+                <span class="gauge-value" id="umid-caixa9">-- %</span>
+            </div>
+            <div class="gauge">
+                <span>Peso</span>
+                <span class="gauge-value" id="peso-caixa9">-- kg</span>
+            </div>
+            <canvas class="chart" id="caixa9-chart"></canvas>
+        </div>
+        
+        <!-- Caixa 10 -->
+        <div class="box" id="caixa10">
+            <h2>Caixa 10</h2>
+            <div class="gauge">
+                <span>Temperatura</span>
+                <span class="gauge-value" id="temp-caixa10">-- °C</span>
+            </div>
+            <div class="gauge">
+                <span>Umidade</span>
+                <span class="gauge-value" id="umid-caixa10">-- %</span>
+            </div>
+            <div class="gauge">
+                <span>Peso</span>
+                <span class="gauge-value" id="peso-caixa10">-- kg</span>
+            </div>
+            <canvas class="chart" id="caixa10-chart"></canvas>
+        </div>
+        
+        <!-- Caixa 12 -->
+        <div class="box" id="caixa12">
+            <h2>Caixa 12</h2>
+            <div class="gauge">
+                <span>Temperatura</span>
+                <span class="gauge-value" id="temp-caixa12">-- °C</span>
+            </div>
+            <div class="gauge">
+                <span>Umidade</span>
+                <span class="gauge-value" id="umid-caixa12">-- %</span>
+            </div>
+            <div class="gauge">
+                <span>Peso</span>
+                <span class="gauge-value" id="peso-caixa12">-- kg</span>
+            </div>
+            <canvas class="chart" id="caixa12-chart"></canvas>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        async function fetchData() {
+            const response = await fetch('http://localhost:3000/telemetria');
+            const data = await response.json();
+            updateGauges(data);
+            updateCharts(data);
+        }
+
+        function updateGauges(data) {
+            // Ambiente
+            document.getElementById('temp-ambiente').textContent = `${data.Ambiente[0].temperatura} °C`;
+            document.getElementById('umid-ambiente').textContent = `${data.Ambiente[0].umidade} %`;
+            document.getElementById('press-ambiente').textContent = `${data.Ambiente[0].pressao} hPa`;
+            
+            // Caixa 9
+            document.getElementById('temp-caixa9').textContent = `${data.Caixa9[0].temperatura} °C`;
+            document.getElementById('umid-caixa9').textContent = `${data.Caixa9[0].umidade} %`;
+            document.getElementById('peso-caixa9').textContent = `${data.Caixa9[0].peso} kg`;
+            
+            // Caixa 10
+            document.getElementById('temp-caixa10').textContent = `${data.Caixa10[0].temperatura} °C`;
+            document.getElementById('umid-caixa10').textContent = `${data.Caixa10[0].umidade} %`;
+            document.getElementById('peso-caixa10').textContent = `${data.Caixa10[0].peso} kg`;
+
+            // Caixa 12
+            document.getElementById('temp-caixa12').textContent = `${data.Caixa12[0].temperatura} °C`;
+            document.getElementById('umid-caixa12').textContent = `${data.Caixa12[0].umidade} %`;
+            document.getElementById('peso-caixa12').textContent = `${data.Caixa12[0].peso} kg`;
+        }
+
+        function createChart(elementId, label, dataset) {
+            return new Chart(document.getElementById(elementId), {
+                type: 'line',
+                data: {
+                    labels: Array.from({ length: dataset.length }, (_, i) => `${i}:00`),
+                    datasets: [{
+                        label,
+                        data: dataset,
+                        backgroundColor: 'rgba(0, 216, 255, 0.2)',
+                        borderColor: 'rgba(0, 216, 255, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateCharts(data) {
+            createChart('ambiente-chart', 'Ambiente', data.Ambiente.map(point => point.temperatura));
+            createChart('caixa9-chart', 'Caixa 9', data.Caixa9.map(point => point.temperatura));
+            createChart('caixa10-chart', 'Caixa 10', data.Caixa10.map(point => point.temperatura));
+            createChart('caixa12-chart', 'Caixa 12', data.Caixa12.map(point => point.temperatura));
+        }
+
+        fetchData();
+        setInterval(fetchData, 60000);
+    </script>
+</body>
+</html>
