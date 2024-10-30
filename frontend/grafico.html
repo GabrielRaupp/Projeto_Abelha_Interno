@@ -4,77 +4,82 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chartist/dist/chartist.min.css">
     <title>Gráficos de Telemetria</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartist/dist/chartist.min.js"></script> <!-- Incluindo Chartist.js -->
 </head>
 <body>
 
     <div class="graphs-area">
         <h1>Gráficos de Telemetria</h1>
+        
         <div class="graph-container">
             <h2>Caixa 9</h2>
             <div class="graph-item">
-                <canvas id="graficoCaixa9Temp" width="400" height="200"></canvas>
+                <div id="graficoCaixa9Temp" class="ct-chart" style="height: 200px;"></div>
                 <p>Temperatura (°C)</p>
             </div>
             <div class="graph-item">
-                <canvas id="graficoCaixa9Umid" width="400" height="200"></canvas>
+                <div id="graficoCaixa9Umid" class="ct-chart" style="height: 200px;"></div>
                 <p>Umidade (%)</p>
             </div>
             <div class="graph-item">
-                <canvas id="graficoCaixa9Pressao" width="400" height="200"></canvas>
+                <div id="graficoCaixa9Pressao" class="ct-chart" style="height: 200px;"></div>
                 <p>Pressão (hPa)</p>
             </div>
         </div>
+
         <div class="graph-container">
             <h2>Caixa 10</h2>
             <div class="graph-item">
-                <canvas id="graficoCaixa10Temp" width="400" height="200"></canvas>
+                <div id="graficoCaixa10Temp" class="ct-chart" style="height: 200px;"></div>
                 <p>Temperatura (°C)</p>
             </div>
             <div class="graph-item">
-                <canvas id="graficoCaixa10Umid" width="400" height="200"></canvas>
+                <div id="graficoCaixa10Umid" class="ct-chart" style="height: 200px;"></div>
                 <p>Umidade (%)</p>
             </div>
             <div class="graph-item">
-                <canvas id="graficoCaixa10Pressao" width="400" height="200"></canvas>
+                <div id="graficoCaixa10Pressao" class="ct-chart" style="height: 200px;"></div>
                 <p>Pressão (hPa)</p>
             </div>
         </div>
+
         <div class="graph-container">
             <h2>Caixa 12</h2>
-             <div class="graph-item">
-                <canvas id="graficoCaixa12Temp" width="400" height="200"></canvas>
+            <div class="graph-item">
+                <div id="graficoCaixa12Temp" class="ct-chart" style="height: 200px;"></div>
                 <p>Temperatura (°C)</p>
             </div>
             <div class="graph-item">
-                <canvas id="graficoCaixa12Umid" width="400" height="200"></canvas>
+                <div id="graficoCaixa12Umid" class="ct-chart" style="height: 200px;"></div>
                 <p>Umidade (%)</p>
             </div>
             <div class="graph-item">
-                <canvas id="graficoCaixa12Pressao" width="400" height="200"></canvas>
+                <div id="graficoCaixa12Pressao" class="ct-chart" style="height: 200px;"></div>
                 <p>Pressão (hPa)</p>
             </div>
         </div>
+
         <div class="graph-container">
             <h2>Ambiente</h2>
             <div class="graph-item">
-                <canvas id="graficoAmbienteTemp" width="400" height="200"></canvas>
+                <div id="graficoAmbienteTemp" class="ct-chart" style="height: 200px;"></div>
                 <p>Temperatura (°C)</p>
             </div>
             <div class="graph-item">
-                <canvas id="graficoAmbienteUmid" width="400" height="200"></canvas>
+                <div id="graficoAmbienteUmid" class="ct-chart" style="height: 200px;"></div>
                 <p>Umidade (%)</p>
             </div>
             <div class="graph-item">
-                <canvas id="graficoAmbientePressao" width="400" height="200"></canvas>
+                <div id="graficoAmbientePressao" class="ct-chart" style="height: 200px;"></div>
                 <p>Pressão (hPa)</p>
             </div>
         </div>
 
         <button onclick="window.location.href='Index.html'">Voltar</button>
-
-        <script src="Script.js"></script>
     </div>
+
+    <script src="Script.js"></script>
 </body>
 </html>

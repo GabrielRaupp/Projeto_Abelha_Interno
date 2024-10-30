@@ -1,80 +1,115 @@
 async function fetchData() {
     try {
         const response = await fetch('http://localhost:3000/api/telemetria');
-        const data = await response.json();
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
-        // Função para mapear dados por sensor_id
-        const getDataBySensorId = (sensorId, key) => {
-            const sensorData = data.find(item => item.sensor_id === sensorId);
-            return sensorData ? sensorData[key] : null;
+        const data = await response.json();
+        if (!Array.isArray(data) || data.length === 0) throw new Error("Dados no formato incorreto ou array vazio.");
+
+        const getDataBySensorId = (sensorId, key) => data
+            .filter(item => item.sensor_id === sensorId)
+            .map(item => {
+                const [day, month, year] = item.data.split('/');
+                const [hour, minute, second] = item.horario.split(':');
+                const formattedDate = new Date(year, month - 1, day, hour, minute, second);
+
+                return {
+                    x: formattedDate.getTime() / 1000,
+                    y: item[key],
+                    time: formattedDate.toLocaleString('pt-BR', {
+                        year: 'numeric', month: '2-digit', day: '2-digit',
+                        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+                    })
+                };
+            });
+
+        const lastDisplayedValues = {};
+        const createTooltip = () => {
+            const tooltip = document.createElement('div');
+            tooltip.className = 'tooltip';
+            tooltip.style.position = 'absolute';
+            tooltip.style.pointerEvents = 'none';
+            tooltip.style.display = 'none';
+            document.body.appendChild(tooltip);
+            return tooltip;
         };
 
-        // Conversão de data para um formato legível
-        const labels = data.map(item => new Date(item.data).toLocaleDateString());
+        const tooltip = createTooltip();
 
-        // Função para criar gráfico
-        function criarGrafico(ctx, label, data, borderColor) {
-            return new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: label,
-                        data: data,
-                        borderColor: borderColor,
-                        borderWidth: 1,
-                        fill: false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: false
-                        }
-                    }
+        function drawLineChart(containerId, title, seriesData, unit) {
+            const labels = seriesData.map(point => new Date(point.x * 1000).toLocaleTimeString());
+            const values = seriesData.map(point => point.y);
+
+            new Chartist.Line(containerId, {
+                labels: labels,
+                series: [values]
+            }, {
+                high: Math.max(...values) + 5,
+                low: Math.min(...values) - 5,
+                showArea: true,
+                fullWidth: true,
+                axisY: { title: title },
+                axisX: { title: 'Horário' }
+            });
+
+            const lastValue = values[values.length - 1];
+            const valueDisplay = document.querySelector(`${containerId} + p`);
+            if (lastDisplayedValues[containerId] !== lastValue) {
+                lastDisplayedValues[containerId] = lastValue;
+                if (valueDisplay) {
+                    valueDisplay.innerText = `Último Valor: ${lastValue} ${unit}`;
+                    valueDisplay.className = 'last-value';
+                } else {
+                    const newValueDisplay = document.createElement('p');
+                    newValueDisplay.innerText = `Último Valor: ${lastValue} ${unit}`;
+                    newValueDisplay.className = 'last-value';
+                    document.querySelector(containerId).parentNode.appendChild(newValueDisplay);
                 }
+            }
+
+            const titleElement = document.createElement('h3');
+            titleElement.innerText = title;
+            const container = document.querySelector(containerId).parentNode;
+            if (!container.querySelector('h3')) container.insertBefore(titleElement, document.querySelector(containerId));
+
+            const chartElement = document.querySelector(containerId);
+            chartElement.addEventListener('mousemove', (event) => {
+                const pointIndex = Math.floor((event.offsetX / chartElement.offsetWidth) * seriesData.length);
+                if (pointIndex >= 0 && pointIndex < seriesData.length) {
+                    const point = seriesData[pointIndex];
+                    tooltip.innerText = `Valor: ${point.y} ${unit}\nData: ${point.time}`;
+                    tooltip.style.left = `${event.pageX + 10}px`;
+                    tooltip.style.top = `${event.pageY + 10}px`;
+                    tooltip.style.display = 'block';
+                }
+            });
+
+            chartElement.addEventListener('mouseleave', () => {
+                tooltip.style.display = 'none';
             });
         }
 
-        // Obter os elementos do canvas
-        const ctxCaixa9Temp = document.getElementById('graficoCaixa9Temp').getContext('2d');
-        const ctxCaixa9Umid = document.getElementById('graficoCaixa9Umid').getContext('2d');
-        const ctxCaixa9Pressao = document.getElementById('graficoCaixa9Pressao').getContext('2d');
+        drawLineChart('#graficoCaixa9Temp', 'Temperatura', getDataBySensorId('4', 'temperatura'), '°C');
+        drawLineChart('#graficoCaixa9Umid', 'Umidade', getDataBySensorId('4', 'umidade'), '%');
+        drawLineChart('#graficoCaixa9Pressao', 'Pressão', getDataBySensorId('4', 'pressao'), 'hPa');
 
-        const ctxCaixa10Temp = document.getElementById('graficoCaixa10Temp').getContext('2d');
-        const ctxCaixa10Umid = document.getElementById('graficoCaixa10Umid').getContext('2d');
-        const ctxCaixa10Pressao = document.getElementById('graficoCaixa10Pressao').getContext('2d');
+        drawLineChart('#graficoCaixa10Temp', 'Temperatura', getDataBySensorId('5', 'temperatura'), '°C');
+        drawLineChart('#graficoCaixa10Umid', 'Umidade', getDataBySensorId('5', 'umidade'), '%');
+        drawLineChart('#graficoCaixa10Pressao', 'Pressão', getDataBySensorId('5', 'pressao'), 'hPa');
 
-        const ctxCaixa12Temp = document.getElementById('graficoCaixa12Temp').getContext('2d');
-        const ctxCaixa12Umid = document.getElementById('graficoCaixa12Umid').getContext('2d');
-        const ctxCaixa12Pressao = document.getElementById('graficoCaixa12Pressao').getContext('2d');
+        drawLineChart('#graficoCaixa12Temp', 'Temperatura', getDataBySensorId('6', 'temperatura'), '°C');
+        drawLineChart('#graficoCaixa12Umid', 'Umidade', getDataBySensorId('6', 'umidade'), '%');
+        drawLineChart('#graficoCaixa12Pressao', 'Pressão', getDataBySensorId('6', 'pressao'), 'hPa');
 
-        const ctxAmbienteTemp = document.getElementById('graficoAmbienteTemp').getContext('2d');
-        const ctxAmbienteUmid = document.getElementById('graficoAmbienteUmid').getContext('2d');
-        const ctxAmbientePressao = document.getElementById('graficoAmbientePressao').getContext('2d');
-
-        // Criar gráficos com base nos IDs dos sensores
-        criarGrafico(ctxCaixa9Temp, 'Temperatura Caixa 9', data.map(item => getDataBySensorId('4', 'temperatura')), 'rgba(255, 205, 86, 1)');
-        criarGrafico(ctxCaixa9Umid, 'Umidade Caixa 9', data.map(item => getDataBySensorId('4', 'umidade')), 'rgba(54, 162, 235, 1)');
-        criarGrafico(ctxCaixa9Pressao, 'Pressão Caixa 9', data.map(item => getDataBySensorId('4', 'pressao')), 'rgba(75, 192, 192, 1)');
-
-        criarGrafico(ctxCaixa10Temp, 'Temperatura Caixa 10', data.map(item => getDataBySensorId('5', 'temperatura')), 'rgba(255, 159, 64, 1)');
-        criarGrafico(ctxCaixa10Umid, 'Umidade Caixa 10', data.map(item => getDataBySensorId('5', 'umidade')), 'rgba(54, 162, 235, 1)');
-        criarGrafico(ctxCaixa10Pressao, 'Pressão Caixa 10', data.map(item => getDataBySensorId('5', 'pressao')), 'rgba(75, 192, 192, 1)');
-
-        criarGrafico(ctxCaixa12Temp, 'Temperatura Caixa 12', data.map(item => getDataBySensorId('6', 'temperatura')), 'rgba(75, 192, 192, 1)');
-        criarGrafico(ctxCaixa12Umid, 'Umidade Caixa 12', data.map(item => getDataBySensorId('6', 'umidade')), 'rgba(54, 162, 235, 1)');
-        criarGrafico(ctxCaixa12Pressao, 'Pressão Caixa 12', data.map(item => getDataBySensorId('6', 'pressao')), 'rgba(75, 192, 192, 1)');
-
-        criarGrafico(ctxAmbienteTemp, 'Temperatura Ambiente', data.map(item => getDataBySensorId('7', 'temperatura')), 'rgba(153, 102, 255, 1)');
-        criarGrafico(ctxAmbienteUmid, 'Umidade Ambiente', data.map(item => getDataBySensorId('7', 'umidade')), 'rgba(54, 162, 235, 1)');
-        criarGrafico(ctxAmbientePressao, 'Pressão Ambiente', data.map(item => getDataBySensorId('7', 'pressao')), 'rgba(75, 192, 192, 1)');
+        drawLineChart('#graficoAmbienteTemp', 'Temperatura', getDataBySensorId('7', 'temperatura'), '°C');
+        drawLineChart('#graficoAmbienteUmid', 'Umidade', getDataBySensorId('7', 'umidade'), '%');
+        drawLineChart('#graficoAmbientePressao', 'Pressão', getDataBySensorId('7', 'pressao'), 'hPa');
 
     } catch (error) {
-        console.error('Error fetching data:', error);
-        document.querySelector('.graphs-area').innerHTML = "<p>Erro ao carregar os dados.</p>";
+        console.error('Erro ao carregar os dados:', error);
+        document.querySelector('.graphs-area').innerHTML = `<p>Erro ao carregar os dados: ${error.message}</p>`;
     }
 }
 
+setInterval(fetchData, 60000);
 document.addEventListener('DOMContentLoaded', fetchData);
