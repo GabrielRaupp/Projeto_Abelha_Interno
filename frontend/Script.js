@@ -1,4 +1,4 @@
-async function fetchData() {
+async function fetchData(selectedDate) {
     try {
         const response = await fetch('http://localhost:3000/api/telemetria');
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
@@ -6,22 +6,33 @@ async function fetchData() {
         const data = await response.json();
         if (!Array.isArray(data) || data.length === 0) throw new Error("Dados no formato incorreto ou array vazio.");
 
-        const getDataBySensorId = (sensorId, key) => data
-            .filter(item => item.sensor_id === sensorId)
-            .map(item => {
-                const [day, month, year] = item.data.split('/');
-                const [hour, minute, second] = item.horario.split(':');
-                const formattedDate = new Date(year, month - 1, day, hour, minute, second);
+        const today = new Date();
+        const startOfDay = selectedDate ? new Date(selectedDate + "T00:00:00Z") : new Date(today.setHours(0, 0, 0, 0));
+        const endOfDay = selectedDate ? new Date(selectedDate + "T23:59:59Z") : new Date(today.setHours(23, 59, 59, 999));
 
-                return {
-                    x: formattedDate.getTime() / 1000,
-                    y: item[key],
-                    time: formattedDate.toLocaleString('pt-BR', {
-                        year: 'numeric', month: '2-digit', day: '2-digit',
-                        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
-                    })
-                };
-            });
+        const filteredData = data.filter(item => {
+            const date = new Date(item.data);
+            return date >= startOfDay && date <= endOfDay;
+        });
+
+        const getDataBySensorId = (sensorId, key) => {
+            return filteredData
+                .filter(item => item.sensor_id === sensorId)
+                .map(item => {
+                    const [day, month, year] = item.data.split('/');
+                    const [hour, minute] = item.horario.split(':');
+                    const formattedDate = new Date(`${year}-${month}-${day}T${hour}:${minute}Z`);
+
+                    return {
+                        x: formattedDate.getTime() / 1000,
+                        y: item[key],
+                        time: formattedDate.toLocaleString('pt-BR', {
+                            year: 'numeric', month: '2-digit', day: '2-digit',
+                            hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+                        })
+                    };
+                });
+        };
 
         const lastDisplayedValues = {};
         const createTooltip = () => {
@@ -37,7 +48,12 @@ async function fetchData() {
         const tooltip = createTooltip();
 
         function drawLineChart(containerId, title, seriesData, unit) {
-            const labels = seriesData.map(point => new Date(point.x * 1000).toLocaleTimeString());
+            if (seriesData.length === 0) {
+                document.querySelector(containerId).innerHTML = `<p>Sem dados para exibir.</p>`;
+                return;
+            }
+            
+            const labels = seriesData.map(point => new Date(point.x * 1000).toLocaleDateString());
             const values = seriesData.map(point => point.y);
 
             new Chartist.Line(containerId, {
@@ -49,7 +65,7 @@ async function fetchData() {
                 showArea: true,
                 fullWidth: true,
                 axisY: { title: title },
-                axisX: { title: 'Horário' }
+                axisX: { title: 'Data' }
             });
 
             const lastValue = values[values.length - 1];
@@ -105,13 +121,30 @@ async function fetchData() {
         drawLineChart('#graficoCaixa12Umid', 'Umidade', getDataBySensorId('6', 'umidade'), '%');
         drawLineChart('#graficoCaixa12Pressao', 'Pressão', getDataBySensorId('6', 'pressao'), 'hPa');
 
- 
-
     } catch (error) {
         console.error('Erro ao carregar os dados:', error);
         document.querySelector('.graphs-area').innerHTML = `<p>Erro ao carregar os dados: ${error.message}</p>`;
     }
 }
 
-setInterval(fetchData, 60000);
-document.addEventListener('DOMContentLoaded', fetchData);
+function selectDate() {
+    const dateInput = document.getElementById('dateInput').value;
+    const minDate = new Date("2024-08-29").toISOString().split('T')[0];
+
+    if (dateInput < minDate) {
+        alert("Por favor, selecione uma data a partir de 2024-08-29.");
+        return;
+    }
+
+    fetchData(dateInput);
+}
+
+const dateSelector = document.createElement('input');
+dateSelector.type = 'date';
+dateSelector.id = 'dateInput';
+dateSelector.min = "2024-08-29"; 
+dateSelector.addEventListener('change', selectDate);
+document.body.appendChild(dateSelector);
+
+setInterval(() => fetchData(), 180000);
+document.addEventListener('DOMContentLoaded', () => fetchData());

@@ -18,7 +18,7 @@ body {
 h1 {
     font-size: 2.8em;
     margin-bottom: 20px;
-    color: #ffcc00; /* Dourado para destacar o título */
+    color: #ffcc00; 
     text-shadow: 1px 1px 8px rgba(0, 0, 0, 0.7);
     text-align: center;
 }
@@ -35,28 +35,10 @@ h1 {
 
 h2 {
     color: #ffffff;
-    margin-bottom: 20px;
+    margin-top: 20px;
+    margin-bottom: 10px;
     font-size: 1.8em;
     text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.5);
-}
-
-.graph-container {
-    margin-bottom: 30px;
-    background-color: #2b2b2b;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.4);
-}
-
-.graph-item {
-    margin: 15px 0;
-}
-
-.ct-chart {
-    background-color: #333333;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-    margin: 20px auto;
 }
 
 p {
@@ -86,7 +68,25 @@ button:hover {
     transform: scale(1.05);
 }
 
-/* Estilização para o último valor */
+.graph-container {
+    margin-bottom: 30px;
+    background-color: #3a3a3a; 
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.4);
+}
+
+.graph-item {
+    margin: 15px 0;
+}
+
+.ct-chart {
+    background-color: #333333;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    margin: 20px auto;
+}
+
 .last-value {
     font-size: 16px;
     font-weight: bold;
