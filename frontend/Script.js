@@ -1,3 +1,17 @@
+// Criação e estilização do seletor de data no topo
+const dateSelectorContainer = document.createElement('div');
+dateSelectorContainer.className = 'date-selector-container';
+dateSelectorContainer.innerHTML = `<label for="dateInput" class="date-label">Selecione a Data:</label>`;
+const dateSelector = document.createElement('input');
+dateSelector.type = 'date';
+dateSelector.id = 'dateInput';
+dateSelector.min = "2024-08-29"; 
+dateSelector.className = 'date-input';
+dateSelector.addEventListener('change', selectDate);
+dateSelectorContainer.appendChild(dateSelector);
+document.body.prepend(dateSelectorContainer);
+
+// Função para buscar e filtrar dados
 async function fetchData(selectedDate) {
     try {
         const response = await fetch('http://localhost:3000/api/telemetria');
@@ -138,13 +152,6 @@ function selectDate() {
 
     fetchData(dateInput);
 }
-
-const dateSelector = document.createElement('input');
-dateSelector.type = 'date';
-dateSelector.id = 'dateInput';
-dateSelector.min = "2024-08-29"; 
-dateSelector.addEventListener('change', selectDate);
-document.body.appendChild(dateSelector);
 
 setInterval(() => fetchData(), 180000);
 document.addEventListener('DOMContentLoaded', () => fetchData());
