@@ -1,4 +1,3 @@
-// Criação e estilização do seletor de data no topo
 const dateSelectorContainer = document.createElement('div');
 dateSelectorContainer.className = 'date-selector-container';
 dateSelectorContainer.innerHTML = `<label for="dateInput" class="date-label">Selecione a Data:</label>`;
@@ -67,7 +66,7 @@ async function fetchData(selectedDate) {
                 return;
             }
 
-            const labels = seriesData.map(point => new Date(point.x * 1000).toLocaleDateString('pt-BR'));
+            const labels = seriesData.map(point => new Date(point.x * 1000).toLocaleDateString());
             const values = seriesData.map(point => point.y);
 
             new Chartist.Line(containerId, {
@@ -78,9 +77,22 @@ async function fetchData(selectedDate) {
                 low: Math.min(...values) - 5,
                 showArea: true,
                 fullWidth: true,
-                axisY: { title: title },
-                axisX: { title: 'Data' }
+                axisY: {
+                    labelInterpolationFnc: value => `${value} ${unit}`,
+                    labelOffset: { x: 0, y: 5 },
+                    labelClass: 'y-axis-label'
+                },
+                axisX: { showLabel: false, showGrid: false }
             });
+
+            const style = document.createElement('style');
+            style.innerHTML = `
+                .ct-chart .y-axis-label {
+                    fill: white !important;
+                    font-size: 12px;
+                }
+            `;
+            document.head.appendChild(style);
 
             const lastValue = values[values.length - 1];
             const valueDisplay = document.querySelector(`${containerId} + p`);
@@ -107,7 +119,7 @@ async function fetchData(selectedDate) {
                 const pointIndex = Math.floor((event.offsetX / chartElement.offsetWidth) * seriesData.length);
                 if (pointIndex >= 0 && pointIndex < seriesData.length) {
                     const point = seriesData[pointIndex];
-                    tooltip.innerText = `Valor: ${point.y} ${unit}\nData/Hora: ${point.time}`;
+                    tooltip.innerText = `Valor: ${point.y} ${unit}\nData: ${point.time}`;
                     tooltip.style.left = `${event.pageX + 10}px`;
                     tooltip.style.top = `${event.pageY + 10}px`;
                     tooltip.style.display = 'block';
@@ -122,15 +134,15 @@ async function fetchData(selectedDate) {
         drawLineChart('#graficoAmbienteTemp', 'Temperatura', getDataBySensorId('7', 'temperatura'), '°C');
         drawLineChart('#graficoAmbienteUmid', 'Umidade', getDataBySensorId('7', 'umidade'), '%');
         drawLineChart('#graficoAmbientePressao', 'Pressão', getDataBySensorId('7', 'pressao'), 'hPa');
-
+        
         drawLineChart('#graficoCaixa9Temp', 'Temperatura', getDataBySensorId('4', 'temperatura'), '°C');
         drawLineChart('#graficoCaixa9Umid', 'Umidade', getDataBySensorId('4', 'umidade'), '%');
         drawLineChart('#graficoCaixa9Pressao', 'Pressão', getDataBySensorId('4', 'pressao'), 'hPa');
-
+        
         drawLineChart('#graficoCaixa10Temp', 'Temperatura', getDataBySensorId('5', 'temperatura'), '°C');
         drawLineChart('#graficoCaixa10Umid', 'Umidade', getDataBySensorId('5', 'umidade'), '%');
         drawLineChart('#graficoCaixa10Pressao', 'Pressão', getDataBySensorId('5', 'pressao'), 'hPa');
-
+        
         drawLineChart('#graficoCaixa12Temp', 'Temperatura', getDataBySensorId('6', 'temperatura'), '°C');
         drawLineChart('#graficoCaixa12Umid', 'Umidade', getDataBySensorId('6', 'umidade'), '%');
         drawLineChart('#graficoCaixa12Pressao', 'Pressão', getDataBySensorId('6', 'pressao'), 'hPa');
