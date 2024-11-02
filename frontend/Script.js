@@ -33,17 +33,13 @@ async function fetchData(selectedDate) {
             return filteredData
                 .filter(item => item.sensor_id === sensorId)
                 .map(item => {
-                    const [day, month, year] = item.data.split('/');
-                    const [hour, minute] = item.horario.split(':');
-                    const formattedDate = new Date(`${year}-${month}-${day}T${hour}:${minute}Z`);
+                    const date = new Date(item.data);
+                    const time = item.horario;
 
                     return {
-                        x: formattedDate.getTime() / 1000,
+                        x: date.getTime() / 1000,
                         y: item[key],
-                        time: formattedDate.toLocaleString('pt-BR', {
-                            year: 'numeric', month: '2-digit', day: '2-digit',
-                            hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
-                        })
+                        time: `${date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })} ${time}`
                     };
                 });
         };
@@ -55,6 +51,10 @@ async function fetchData(selectedDate) {
             tooltip.style.position = 'absolute';
             tooltip.style.pointerEvents = 'none';
             tooltip.style.display = 'none';
+            tooltip.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+            tooltip.style.color = 'white';
+            tooltip.style.padding = '5px';
+            tooltip.style.borderRadius = '4px';
             document.body.appendChild(tooltip);
             return tooltip;
         };
@@ -66,8 +66,8 @@ async function fetchData(selectedDate) {
                 document.querySelector(containerId).innerHTML = `<p>Sem dados para exibir.</p>`;
                 return;
             }
-            
-            const labels = seriesData.map(point => new Date(point.x * 1000).toLocaleDateString());
+
+            const labels = seriesData.map(point => new Date(point.x * 1000).toLocaleDateString('pt-BR'));
             const values = seriesData.map(point => point.y);
 
             new Chartist.Line(containerId, {
@@ -107,7 +107,7 @@ async function fetchData(selectedDate) {
                 const pointIndex = Math.floor((event.offsetX / chartElement.offsetWidth) * seriesData.length);
                 if (pointIndex >= 0 && pointIndex < seriesData.length) {
                     const point = seriesData[pointIndex];
-                    tooltip.innerText = `Valor: ${point.y} ${unit}\nData: ${point.time}`;
+                    tooltip.innerText = `Valor: ${point.y} ${unit}\nData/Hora: ${point.time}`;
                     tooltip.style.left = `${event.pageX + 10}px`;
                     tooltip.style.top = `${event.pageY + 10}px`;
                     tooltip.style.display = 'block';
