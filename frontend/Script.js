@@ -1,3 +1,4 @@
+// Criação do container e input para seleção de data
 const dateSelectorContainer = document.createElement('div');
 dateSelectorContainer.className = 'date-selector-container';
 dateSelectorContainer.innerHTML = `<label for="dateInput" class="date-label">Selecione a Data:</label>`;
@@ -9,6 +10,15 @@ dateSelector.className = 'date-input';
 dateSelector.addEventListener('change', selectDate);
 dateSelectorContainer.appendChild(dateSelector);
 document.body.prepend(dateSelectorContainer);
+
+// Criação do botão de impressão
+const printButton = document.createElement('button');
+printButton.className = 'print-button';
+printButton.innerText = 'Imprimir';
+printButton.addEventListener('click', () => {
+    window.print();
+});
+dateSelectorContainer.appendChild(printButton);
 
 // Função para buscar e filtrar dados
 async function fetchData(selectedDate) {
