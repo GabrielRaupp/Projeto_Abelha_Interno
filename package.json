@@ -8,6 +8,6 @@
     "mysql2": "^3.11.3"
   },
   "scripts": {
-    "start": "node app.js"
+    "start": "node src/app.js"
   }
 }
