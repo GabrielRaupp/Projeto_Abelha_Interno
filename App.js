@@ -21,38 +21,37 @@ const db = mysql.createConnection({
     database: DB_NAME
 });
 
-db.connect((err) => {
+db.connect(err => {
     if (err) {
-        console.error('Erro ao conectar ao banco de dados:', err.message);
-        return;
+        console.error('Erro ao conectar-se ao banco de dados:', err);
+    } else {
+        console.log('Conectado ao banco de dados MySQL');
     }
-    console.log('Conectado ao banco de dados com sucesso!');
 });
 
 const app = express();
-app.use(express.json());
-app.use(express.static(path.join(__dirname, 'src', 'frontend')));  // Ajuste no caminho para a pasta 'frontend'
 
-// Rota para dados de telemetria
+// Servir arquivos estáticos
+app.use(express.static(path.join(__dirname, 'src', 'frontend')));
+
+// Endpoint para dados de telemetria
 app.get('/api/telemetria', (req, res) => {
-    const query = 'SELECT * FROM telemetria';
-    db.query(query, (err, results) => {
+    db.query('SELECT * FROM telemetria', (err, results) => {
         if (err) {
-            console.error('Erro ao executar consulta:', err);
-            res.status(500).send({ message: 'Erro ao executar consulta' });
-            return;
+            res.status(500).send('Erro ao buscar dados de telemetria');
+        } else {
+            res.json(results);
         }
-        res.json(results);
     });
 });
 
-// Rota para servir o arquivo HTML
+// Rota principal para servir o arquivo HTML
 app.get('/', (req, res) => {
     const indexPath = path.join(__dirname, 'src', 'frontend', 'Index.html');
-    console.log('Servindo arquivo HTML em:', indexPath);  // Verifica o caminho absoluto
     res.sendFile(indexPath);
 });
 
+// Iniciar servidor
 app.listen(PORT, () => {
-    console.log(`Servidor iniciado na porta ${PORT}`);
+    console.log(`Servidor rodando em http://localhost:${PORT}`);
 });

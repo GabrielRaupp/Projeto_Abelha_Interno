@@ -14,9 +14,8 @@ document.body.prepend(dateSelectorContainer);
 // Função para buscar e filtrar dados
 async function fetchData(selectedDate) {
     try {
-        // Substitua a URL abaixo pelo endpoint correto da sua API em produção
-        const response = await fetch('https://teste-projeto-gdaj.onrender.com/api/telemetria');
-        
+        // URL relativa para permitir acesso tanto local quanto no servidor hospedado
+        const response = await fetch('/api/telemetria');
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
         const data = await response.json();
@@ -168,8 +167,5 @@ function selectDate() {
     fetchData(dateInput);
 }
 
-// Atualização automática a cada 3 minutos
 setInterval(() => fetchData(), 180000);
-
-// Inicializa a primeira requisição quando o documento for carregado
 document.addEventListener('DOMContentLoaded', () => fetchData());
