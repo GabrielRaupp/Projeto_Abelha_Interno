@@ -1,14 +1,17 @@
-// app.js
 const express = require('express');
 const path = require('path');
 const mysql = require('mysql2');
+const dotenv = require('dotenv');
+
+// Carregar variáveis de ambiente
+dotenv.config();
 
 // Configurações do banco de dados
-const DB_HOST = '194.195.213.74';
-const DB_USER = 'ifc';
-const DB_PASSWORD = 'ifcs0mbrio';
-const DB_NAME = 'abelhas';
-const PORT = 3000;
+const DB_HOST = process.env.DB_HOST || '194.195.213.74';
+const DB_USER = process.env.DB_USER || 'ifc';
+const DB_PASSWORD = process.env.DB_PASSWORD || 'ifcs0mbrio';
+const DB_NAME = process.env.DB_NAME || 'abelhas';
+const PORT = process.env.PORT || 3000;
 
 // Conexão com o banco de dados
 const db = mysql.createConnection({
@@ -28,7 +31,7 @@ db.connect((err) => {
 
 const app = express();
 app.use(express.json());
-app.use(express.static(path.join(__dirname, './frontend'))); 
+app.use(express.static(path.join(__dirname, 'frontend')));  // Caminho ajustado para pasta 'frontend'
 
 // Rota para dados de telemetria
 app.get('/api/telemetria', (req, res) => {
@@ -43,8 +46,9 @@ app.get('/api/telemetria', (req, res) => {
     });
 });
 
+// Rota para servir o arquivo HTML
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/Index.html'));
+    res.sendFile(path.join(__dirname, 'frontend', 'Index.html'));  // Caminho ajustado
 });
 
 app.listen(PORT, () => {
