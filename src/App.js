@@ -31,7 +31,9 @@ db.connect((err) => {
 
 const app = express();
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'frontend'))); 
+
+// Servir arquivos estáticos da pasta 'src' onde está o frontend
+app.use(express.static(path.join(__dirname, 'src'))); 
 
 // Rota para dados de telemetria
 app.get('/api/telemetria', (req, res) => {
@@ -48,7 +50,7 @@ app.get('/api/telemetria', (req, res) => {
 
 // Rota para servir o arquivo HTML
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend', 'Index.html'));  // Caminho ajustado
+    res.sendFile(path.join(__dirname, 'src', 'Index.html'));  // Caminho ajustado para 'src'
 });
 
 app.listen(PORT, () => {

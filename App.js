@@ -31,7 +31,7 @@ db.connect((err) => {
 
 const app = express();
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'frontend')));  // Caminho ajustado para pasta 'frontend'
+app.use(express.static(path.join(__dirname, 'src', 'frontend')));  // Ajuste no caminho para pasta 'frontend'
 
 // Rota para dados de telemetria
 app.get('/api/telemetria', (req, res) => {
@@ -48,7 +48,9 @@ app.get('/api/telemetria', (req, res) => {
 
 // Rota para servir o arquivo HTML
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend', 'Index.html'));  // Caminho ajustado
+    const indexPath = path.join(__dirname, 'src', 'frontend', 'Index.html');
+    console.log('Servindo arquivo HTML em:', indexPath);  // Verifica o caminho absoluto
+    res.sendFile(indexPath);
 });
 
 app.listen(PORT, () => {
