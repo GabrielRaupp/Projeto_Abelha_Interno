@@ -1,7 +1,22 @@
+// Container para o Seletor de Data
+const dateSelectorContainer = document.createElement('div');
+dateSelectorContainer.className = 'date-selector-container';
+dateSelectorContainer.innerHTML = `<label for="dateInput" class="date-label">Selecione a Data:</label>`;
+const dateSelector = document.createElement('input');
+dateSelector.type = 'date';
+dateSelector.id = 'dateInput';
+dateSelector.min = "2024-08-29"; 
+dateSelector.className = 'date-input';
+dateSelector.addEventListener('change', selectDate);
+dateSelectorContainer.appendChild(dateSelector);
+document.body.prepend(dateSelectorContainer);
+
+// Função para buscar e filtrar dados
 async function fetchData(selectedDate) {
     try {
-        // Modificando a URL para o servidor de produção
+        // Substitua a URL abaixo pelo endpoint correto da sua API em produção
         const response = await fetch('https://teste-projeto-gdaj.onrender.com/api/telemetria');
+        
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
         const data = await response.json();
@@ -140,3 +155,21 @@ async function fetchData(selectedDate) {
         document.querySelector('.graphs-area').innerHTML = `<p>Erro ao carregar os dados: ${error.message}</p>`;
     }
 }
+
+function selectDate() {
+    const dateInput = document.getElementById('dateInput').value;
+    const minDate = new Date("2024-08-29").toISOString().split('T')[0];
+
+    if (dateInput < minDate) {
+        alert("Por favor, selecione uma data a partir de 2024-08-29.");
+        return;
+    }
+
+    fetchData(dateInput);
+}
+
+// Atualização automática a cada 3 minutos
+setInterval(() => fetchData(), 180000);
+
+// Inicializa a primeira requisição quando o documento for carregado
+document.addEventListener('DOMContentLoaded', () => fetchData());

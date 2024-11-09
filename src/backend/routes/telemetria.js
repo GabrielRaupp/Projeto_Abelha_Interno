@@ -1,10 +1,16 @@
 const express = require('express');
-const db = require('../db');  // A conexão do banco de dados
+const cors = require('cors');
+const db = require('../db'); // Ou a configuração do banco de dados
 
-const router = express.Router();
+const app = express();
 
-// Rota para recuperar dados de telemetria
-router.get('/api/telemetria', (req, res) => {
+// Habilita o CORS para permitir requisições de outros domínios
+app.use(cors({
+    origin: 'https://teste-projeto-gdaj.onrender.com',  // Substitua pela URL do seu frontend hospedado
+}));
+
+// A rota da API
+app.get('/api/telemetria', (req, res) => {
     const query = 'SELECT * FROM telemetria';
     db.query(query, (err, results) => {
         if (err) {
@@ -12,8 +18,10 @@ router.get('/api/telemetria', (req, res) => {
             res.status(500).send({ message: 'Erro ao executar consulta' });
             return;
         }
-        res.json(results);  // Retorna os dados em formato JSON
+        res.json(results);
     });
 });
 
-module.exports = router;
+app.listen(3000, () => {
+    console.log('Servidor rodando na porta 3000');
+});
