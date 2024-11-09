@@ -14,15 +14,17 @@ function createTooltip() {
 }
 
 // Função para exibir o último valor
+
 function displayLastValue(containerId, values, unit) {
     const lastValue = values[values.length - 1];
     const valueDisplay = document.querySelector(`${containerId} + p`);
     if (valueDisplay) {
         valueDisplay.innerText = `Último Valor: ${lastValue} ${unit}`;
+        valueDisplay.classList.add('last-value');
     } else {
         const newValueDisplay = document.createElement('p');
         newValueDisplay.innerText = `Último Valor: ${lastValue} ${unit}`;
-        newValueDisplay.className = 'last-value';
+        newValueDisplay.className = 'last-value';  // Garantindo que o valor tenha o estilo correto
         document.querySelector(containerId).parentNode.appendChild(newValueDisplay);
     }
 }
@@ -136,6 +138,7 @@ async function fetchData(selectedDate = today) {
     }
 }
 
+// Função de seleção de data
 function selectDate() {
     const dateInput = document.getElementById('dateInput').value;
     const minDate = new Date("2024-08-29").toISOString().split('T')[0];
@@ -148,7 +151,7 @@ function selectDate() {
     fetchData(dateInput);
 }
 
-// Configuração inicial
+// Configuração inicial do seletor de data
 const dateSelectorContainer = document.createElement('div');
 dateSelectorContainer.className = 'date-selector-container';
 dateSelectorContainer.innerHTML = `<label for="dateInput" class="date-label">Selecione a Data:</label>`;
@@ -166,5 +169,8 @@ dateSelector.addEventListener('change', selectDate);
 dateSelectorContainer.appendChild(dateSelector);
 document.body.prepend(dateSelectorContainer);
 
+// Atualiza os gráficos a cada 3 minutos
 setInterval(() => fetchData(), 180000);
+
+// Carrega os dados inicialmente quando a página é carregada
 document.addEventListener('DOMContentLoaded', () => fetchData());

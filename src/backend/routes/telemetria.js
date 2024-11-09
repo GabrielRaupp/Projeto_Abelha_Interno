@@ -5,8 +5,19 @@ const db = require('../db'); // Ou a configuração do banco de dados
 const app = express();
 
 // Habilita o CORS para permitir requisições de outros domínios
+const allowedOrigins = [
+    'https://teste-projeto-gdaj.onrender.com',
+    'http://localhost:3000', // Para ambiente de desenvolvimento local
+];
+
 app.use(cors({
-    origin: 'https://teste-projeto-gdaj.onrender.com',  // Substitua pela URL do seu frontend hospedado
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Não permitido pelo CORS'));
+        }
+    },
 }));
 
 // A rota da API
@@ -22,6 +33,8 @@ app.get('/api/telemetria', (req, res) => {
     });
 });
 
-app.listen(3000, () => {
-    console.log('Servidor rodando na porta 3000');
+// Iniciar servidor
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Servidor rodando na porta ${PORT}`);
 });

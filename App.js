@@ -21,9 +21,11 @@ const db = mysql.createConnection({
     database: DB_NAME
 });
 
+// Garantir que a conexão seja bem-sucedida antes de iniciar o servidor
 db.connect(err => {
     if (err) {
         console.error('Erro ao conectar-se ao banco de dados:', err);
+        process.exit(1); // Encerra o processo se a conexão falhar
     } else {
         console.log('Conectado ao banco de dados MySQL');
     }
@@ -38,6 +40,7 @@ app.use(express.static(path.join(__dirname, 'src', 'frontend')));
 app.get('/api/telemetria', (req, res) => {
     db.query('SELECT * FROM telemetria', (err, results) => {
         if (err) {
+            console.error('Erro ao buscar dados de telemetria:', err);
             res.status(500).send('Erro ao buscar dados de telemetria');
         } else {
             res.json(results);

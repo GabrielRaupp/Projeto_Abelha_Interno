@@ -34,7 +34,7 @@ h1 {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     max-width: 1200px;
     width: 100%;
-    margin-bottom: 2rem;
+    margin: 2rem auto;
 }
 
 /* Seções e Gráficos */
@@ -61,50 +61,62 @@ h2 {
     box-shadow: inset 0px 4px 10px rgba(0, 0, 0, 0.3);
 }
 
+/* Último Valor */
 .last-value {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #ffbe0b;
-    background-color: rgba(255, 255, 255, 0.2);
-    padding: 10px 15px;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    font-size: 1.4rem;  /* Diminui o tamanho da fonte */
+    font-weight: normal;  /* Deixa a fonte mais suave */
+    color: #fff; /* Texto mais claro */
+    background: linear-gradient(135deg, rgba(255, 159, 0, 0.8), rgba(255, 97, 0, 0.8)); /* Gradiente mais suave */
+    padding: 10px 20px; /* Reduz o padding */
+    border-radius: 8px; /* Borda mais suave */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* Sombra mais suave */
     text-align: center;
-    margin-top: 1rem;
-    transition: transform 0.2s ease-in-out;
+    margin-top: 1rem; /* Diminui o espaçamento superior */
+    transition: transform 0.3s ease-in-out, background 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 }
 
 .last-value:hover {
-    transform: scale(1.05);
-    background-color: #ff9f1a;
+    transform: scale(1.05); /* Aumento mais sutil no hover */
+    background: linear-gradient(135deg, rgba(255, 159, 0, 1), rgba(255, 97, 0, 1)); /* Gradiente mais intenso no hover */
     color: #fff;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4); /* Sombra mais suave no hover */
 }
 
-/* Filtro de Data */
+
+
+/* Tooltip */
+.tooltip {
+    position: absolute;
+    pointer-events: none;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 5px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    display: none;
+}
+
+/* Seletor de Data */
 .date-selector-container {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    margin-bottom: 1.5rem;
-    background: #2d3748;
-    padding: 10px 20px;
-    border-radius: 8px;
-    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-.date-label {
-    color: #a0aec0;
-    font-size: 1rem;
-    margin-right: 1rem;
+    margin-bottom: 2rem;
 }
 
 .date-input {
-    background-color: #3c4858;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 6px;
-    color: #e2e8f0;
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #ffa500;
+    background-color: #1b364d;
+    color: #f5f5f5;
     font-size: 1rem;
-    outline: none;
+}
+
+.date-label {
+    margin-bottom: 0.5rem;
+    font-size: 1.2rem;
+    color: #ff9e00;
 }
 
 /* Botões */
@@ -139,17 +151,6 @@ button:hover, .button-card button:hover {
 
 .card:hover {
     transform: scale(1.05);
-}
-
-/* Tooltip */
-.tooltip {
-    position: absolute;
-    pointer-events: none;
-    background-color: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 5px;
-    border-radius: 4px;
-    font-size: 0.9rem;
 }
 
 /* Responsividade */
