@@ -31,7 +31,7 @@ db.connect((err) => {
 
 const app = express();
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'src', 'frontend')));  // Ajuste no caminho para pasta 'frontend'
+app.use(express.static(path.join(__dirname, 'src', 'frontend')));  // Ajuste no caminho para a pasta 'frontend'
 
 // Rota para dados de telemetria
 app.get('/api/telemetria', (req, res) => {
