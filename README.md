@@ -1,72 +1,96 @@
-Projeto de Monitoramento de Telemetria
-Este sistema tem como objetivo realizar a coleta e exibição de dados de telemetria de sensores em tempo real. Ele utiliza uma interface web onde é possível selecionar uma data específica para visualizar os dados relacionados a sensores de temperatura, umidade e pressão.
+Projeto Telemetria - Sistema de Monitoramento
+Este projeto tem como objetivo coletar e visualizar dados de telemetria de sensores para monitoramento de ambiente e caixas, como temperatura, umidade e pressão. Através de uma interface web, os dados podem ser filtrados por data e exibidos em gráficos interativos.
 
+Tecnologias Utilizadas
+Frontend:
+HTML, CSS e JavaScript
+Chartist.js para gráficos
+Backend:
+Node.js com Express para a criação de servidor
+MySQL para banco de dados
+API para fornecer dados de telemetria
+Outras:
+Fetch API para comunicação com o backend
 Funcionalidades
-Seleção de Data: O usuário pode selecionar uma data para visualizar os dados de telemetria de sensores em tempo real.
-Exibição de Gráficos: O sistema exibe gráficos de linha para mostrar as medições de temperatura, umidade e pressão ao longo do tempo, utilizando a biblioteca Chartist.
-Interatividade com os Gráficos: Ao passar o mouse sobre os gráficos, uma tooltip aparece, mostrando o valor exato do sensor naquele momento e a data/hora correspondente.
-Atualização Automática: A cada 3 minutos (180.000 ms), o sistema atualiza automaticamente os dados de telemetria, garantindo que as informações sejam sempre as mais recentes.
-Como Funciona
-O sistema consiste em dois componentes principais:
+Seleção de Data:
 
-Frontend
-O frontend é uma aplicação web simples que permite ao usuário interagir com os dados de telemetria:
+O usuário pode selecionar uma data através de um seletor de data. A partir dessa data, os dados serão filtrados e exibidos nos gráficos.
+A data mínima disponível para seleção é 29 de agosto de 2024.
+Gráficos de Telemetria:
 
-HTML e JavaScript: A interface permite selecionar a data e, a partir disso, buscar e filtrar os dados armazenados no banco de dados.
-Gráficos Dinâmicos: Utiliza a biblioteca Chartist.js para desenhar gráficos interativos de temperatura, umidade e pressão para diferentes sensores.
-Backend
-O backend é um servidor Express que se conecta ao banco de dados MySQL para buscar e fornecer os dados de telemetria:
+São exibidos gráficos para cada sensor, mostrando os dados de temperatura, umidade e pressão. Os dados são apresentados em tempo real, com atualizações a cada 3 minutos.
+A visualização é feita através de gráficos de linha interativos, com informações sobre o valor do dado no momento do mouse over.
+Backend e Banco de Dados:
 
-Conexão com o Banco de Dados: O servidor se conecta a um banco de dados MySQL hospedado remotamente.
-API REST: A rota /api/telemetria disponibiliza os dados de telemetria, que são consumidos pelo frontend.
+Os dados são armazenados em um banco de dados MySQL, com a tabela telemetria contendo informações de sensores.
+O backend é responsável por fornecer uma API para a obtenção dos dados de telemetria via GET.
 Instalação
 Requisitos
 Node.js
 MySQL
-Passos para Configuração
+Acesso ao banco de dados configurado (veja as variáveis abaixo)
+Passos para Instalação
 Clone o repositório:
 
 bash
 Copiar código
-git clone <URL_DO_REPOSITORIO>
-cd <NOME_DA_PASTA>
-Instale as dependências:
+git clone <url-do-repositório>
+cd <nome-do-repositório>
+Instale as dependências do backend:
 
 bash
 Copiar código
 npm install
-Configure o Banco de Dados:
+Configure o banco de dados:
 
-Certifique-se de que o banco de dados MySQL esteja funcionando e que a tabela telemetria tenha os dados necessários.
-As credenciais de conexão ao banco de dados são as seguintes:
-Host: 194.195.213.74
-Usuário: ifc
-Senha: ifcs0mbrio
-Banco de dados: abelhas
+Verifique se o MySQL está instalado e em funcionamento.
+Altere as variáveis de configuração do banco de dados no arquivo app.js:
+javascript
+Copiar código
+const DB_HOST = '194.195.213.74';
+const DB_USER = 'ifc';
+const DB_PASSWORD = 'ifcs0mbrio';
+const DB_NAME = 'abelhas';
 Inicie o servidor:
 
 bash
 Copiar código
 npm start
-O servidor será iniciado na porta 3000. Você pode acessar a aplicação web navegando até http://localhost:3000 em seu navegador.
+O servidor será iniciado na porta 3000.
 
-Estrutura de Diretórios
-bash
+Acesse o sistema através do navegador:
+
+arduino
 Copiar código
-├── backend/
-│   ├── app.js           # Código do servidor Express
-│   ├── db.js            # Conexão com o banco de dados
-│   └── config.js        # Configurações do banco de dados
-├── frontend/
-│   ├── Index.html       # Página inicial
-│   ├── script.js        # Lógica do frontend
-│   ├── styles.css       # Estilos do frontend
-└── package.json         # Dependências e scripts do projeto
-Contribuindo
-Se você deseja contribuir com este projeto, siga as etapas abaixo:
+http://localhost:3000
+Estrutura de Arquivos
+frontend:
+index.html: Arquivo principal da interface web.
+styles.css: Estilos da interface.
+app.js: Script do lado do cliente para buscar e exibir os dados.
+backend:
+app.js: Configuração do servidor Express e conexão com o banco de dados.
+package.json: Dependências do projeto.
+API
+Obter Dados de Telemetria
+GET /api/telemetria
 
-Faça um fork deste repositório.
-Crie uma nova branch para suas modificações.
-Realize suas mudanças e envie uma pull request com uma descrição detalhada.
+Exemplo de resposta:
+
+json
+Copiar código
+[
+  {
+    "sensor_id": 1,
+    "data": "2024-08-29T14:00:00",
+    "temperatura": 25.4,
+    "umidade": 60.5,
+    "pressao": 1012.3
+  },
+  ...
+]
 Licença
-Este projeto está licenciado sob a MIT License - consulte o arquivo LICENSE para mais informações.
+Este projeto é licenciado sob a MIT License.
+
+Autor
+Gabriel Pimentel - Desenvolvedor
