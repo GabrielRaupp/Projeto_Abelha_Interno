@@ -1,10 +1,10 @@
 const express = require('express');
-const db = require('../db');
-
+const db = require('../db');  // A conexão do banco de dados
 
 const router = express.Router();
 
-router.get('/', (req, res) => {
+// Rota para recuperar dados de telemetria
+router.get('/api/telemetria', (req, res) => {
     const query = 'SELECT * FROM telemetria';
     db.query(query, (err, results) => {
         if (err) {
@@ -12,7 +12,7 @@ router.get('/', (req, res) => {
             res.status(500).send({ message: 'Erro ao executar consulta' });
             return;
         }
-        res.json(results);
+        res.json(results);  // Retorna os dados em formato JSON
     });
 });
 
