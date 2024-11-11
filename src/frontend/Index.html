@@ -7,19 +7,23 @@
     <title>Projeto Abelha</title>
 </head>
 <body>
-    <div class="main-area">
+    <header>
         <h1>Estudo das Abelhas Nativas de SC</h1>
+    </header>
 
-        <div class="card">
+    <main class="main-area">
+        <!-- Descrição sobre as abelhas nativas de SC -->
+        <section class="card">
             <p>
                 O estado de Santa Catarina, localizado na região sul do Brasil, é conhecido por sua rica biodiversidade, 
                 incluindo uma variedade significativa de abelhas nativas. Esses polinizadores desempenham um papel crucial 
                 nos ecossistemas locais e na agricultura, sendo fundamentais para a reprodução de muitas plantas e, 
                 consequentemente, para a produção de alimentos.
             </p>
-        </div>
+        </section>
 
-        <div class="card">
+        <!-- Estudo focado nas abelhas nativas -->
+        <section class="card">
             <p>
                 Um estudo recente focado nas abelhas nativas de Santa Catarina visa identificar e catalogar as espécies 
                 presentes na região, suas interações com as plantas nativas e cultivadas, e suas contribuições para a 
@@ -27,9 +31,10 @@
                 abelhas sem ferrão, que são altamente valorizadas por suas características sociais e por produzir mel de 
                 alta qualidade.
             </p>
-        </div>
+        </section>
 
-        <div class="card">
+        <!-- Importância das abelhas nativas -->
+        <section class="card">
             <h2>Importância das Abelhas Nativas</h2>
             <p>
                 As abelhas nativas não apenas polinizam flores, mas também contribuem para a manutenção da biodiversidade. 
@@ -37,11 +42,58 @@
                 A preservação das abelhas é vital, pois sua extinção pode levar a consequências devastadoras para o meio ambiente 
                 e para a agricultura.
             </p>
-        </div>
+        </section>
 
+        <!-- Botão para visualização de gráficos -->
         <div class="button-card">
             <button onclick="window.location.href='grafico.html'">Ver Gráficos</button>
         </div>
-    </div>
+    </main>
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="logo-map-section">
+                <!-- Logos dos campi -->
+                <div class="logo-section">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSN6BlCttJCRr604iJug669sdbUBs5ZB7t1yw&s" alt="Logo IFC Sombrio" class="footer-logo">
+                    <img src="https://cecom.ifc.edu.br/wp-content/uploads/sites/10/2022/11/Logo_IFC_vertical_SantaRosadoSul.png" alt="Logo IFC Santa Rosa" class="footer-logo">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMK4iK61cmJmfmeERXk1otySxyFs2HERnh9w&s" alt="Logo IFC Santa Rosa" class="footer-logo">
+                </div>
+    
+                <!-- Mapa dos dois campi -->
+                <div class="map-section">
+                    <div class="campus-map">
+                        <h3>IFC Sombrio</h3>
+                        <iframe 
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3476.256018123652!2d-49.634179823329004!3d-29.10491417505169!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjnCsDA2JzI0LjIiUyA0OcKwMzgnMDcuNSJX!5e0!3m2!1sen!2sbr!4v1619198549367!5m2!1sen!2sbr" 
+                            title="Mapa do Campus IFC Sombrio"
+                            allowfullscreen=""
+                            loading="lazy"
+                            class="footer-map">
+                        </iframe>
+                    </div>
+                    <div class="campus-map">
+                        <h3>IFC Santa Rosa do Sul</h3>
+                        <iframe 
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3476.256018123652!2d-49.8210322!3d-29.0918551!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94db7985b5b1e95f%3A0x59530e773f58c360!2zSW5zdGl0dXRvIFNlZ3JvIEV4cG9zaXRvIFNvbGFSY2hpbywgQ2FtcHVzIFNlbnRhIFJvc2EgZG8gU3Vs!5e0!3m2!1sen!2sbr!4v1619198549367!5m2!1sen!2sbr"
+                            title="Mapa do Campus IFC Santa Rosa do Sul"
+                            allowfullscreen=""
+                            loading="lazy"
+                            class="footer-map">
+                        </iframe>
+                        
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Texto de copyright -->
+        <p class="footer-text">Instituto Federal Catarinense - Campus Sombrio & Campus Santa Rosa © 2024</p>
+    </footer>
+    
+    
+    
+    
+    
 </body>
 </html>
