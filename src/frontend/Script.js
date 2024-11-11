@@ -23,25 +23,18 @@ function displayLastValue(containerId, values, unit) {
     } else {
         const newValueDisplay = document.createElement('p');
         newValueDisplay.innerText = `Último Valor: ${lastValue} ${unit}`;
-        newValueDisplay.className = 'last-value';
+        newValueDisplay.className = 'last-value';  // Garantindo que o valor tenha o estilo correto
         document.querySelector(containerId).parentNode.appendChild(newValueDisplay);
     }
 }
 
-// Função para exibir o título e botão de impressão
-function displayTitleAndPrintButton(containerId, title) {
+// Função para exibir o título
+function displayTitle(containerId, title) {
     const container = document.querySelector(containerId).parentNode;
     if (!container.querySelector('h3')) {
         const titleElement = document.createElement('h3');
         titleElement.innerText = title;
         container.insertBefore(titleElement, document.querySelector(containerId));
-
-        // Adiciona botão de impressão
-        const printButton = document.createElement('button');
-        printButton.innerText = 'Imprimir Gráfico';
-        printButton.className = 'print-button';
-        printButton.onclick = () => printChart(containerId);
-        container.insertBefore(printButton, titleElement.nextSibling);
     }
 }
 
@@ -55,6 +48,7 @@ function drawLineChart(containerId, title, seriesData, unit) {
     const labels = seriesData.map(point => new Date(point.x * 1000).toLocaleDateString());
     const values = seriesData.map(point => point.y);
 
+    // Criar gráfico
     new Chartist.Line(containerId, {
         labels: labels,
         series: [values]
@@ -70,9 +64,11 @@ function drawLineChart(containerId, title, seriesData, unit) {
         axisX: { showLabel: false, showGrid: false }
     });
 
+    // Exibir o último valor e título
     displayLastValue(containerId, values, unit);
-    displayTitleAndPrintButton(containerId, title);
+    displayTitle(containerId, title);
 
+    // Criar tooltip
     const tooltip = createTooltip();
     const chartElement = document.querySelector(containerId);
     chartElement.addEventListener('mousemove', (event) => {
@@ -89,16 +85,26 @@ function drawLineChart(containerId, title, seriesData, unit) {
     chartElement.addEventListener('mouseleave', () => {
         tooltip.style.display = 'none';
     });
+
+    // Adicionar botão de impressão
+    const printButton = document.createElement('button');
+    printButton.innerText = 'Imprimir Gráfico';
+    printButton.className = 'print-button';
+    printButton.addEventListener('click', () => {
+        printChart(containerId);
+    });
+
+    const chartContainer = document.querySelector(containerId).parentNode;
+    chartContainer.appendChild(printButton);
 }
 
 // Função para imprimir o gráfico
 function printChart(containerId) {
-    const chartContainer = document.querySelector(containerId).parentNode;
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write('<html><head><title>Imprimir Gráfico</title>');
-    printWindow.document.write('<style>body { font-family: Arial, sans-serif; }</style>');
-    printWindow.document.write('</head><body>');
-    printWindow.document.write(chartContainer.innerHTML);
+    const chartElement = document.querySelector(containerId);
+    const printWindow = window.open('', '', 'width=800,height=600');
+    printWindow.document.write('<html><head><title>Impressão de Gráfico</title></head><body>');
+    printWindow.document.write('<h2>Gráfico de Telemetria</h2>');
+    printWindow.document.write(chartElement.outerHTML);
     printWindow.document.write('</body></html>');
     printWindow.document.close();
     printWindow.print();
@@ -123,7 +129,7 @@ function drawChartsForAllSensors(getDataBySensorId) {
     drawLineChart('#graficoCaixa12Pressao', 'Pressão', getDataBySensorId('6', 'pressao'), 'hPa');
 }
 
-// Função para buscar e filtrar dados com horário de Brasília
+// Função para buscar e filtrar dados
 async function fetchData(selectedDate = today) {
     try {
         const response = await fetch('/api/telemetria');
@@ -132,8 +138,8 @@ async function fetchData(selectedDate = today) {
         const data = await response.json();
         if (!Array.isArray(data) || data.length === 0) throw new Error("Dados no formato incorreto ou array vazio.");
 
-        const startOfDay = new Date(`${selectedDate}T00:00:00-03:00`);
-        const endOfDay = new Date(`${selectedDate}T23:59:59-03:00`);
+        const startOfDay = new Date(`${selectedDate}T00:00:00Z`);
+        const endOfDay = new Date(`${selectedDate}T23:59:59Z`);
 
         const filteredData = data.filter(item => {
             const date = new Date(item.data);
@@ -143,20 +149,11 @@ async function fetchData(selectedDate = today) {
         const getDataBySensorId = (sensorId, key) => {
             return filteredData
                 .filter(item => item.sensor_id === sensorId)
-                .map(item => {
-                    const date = new Date(item.data);
-                    const formattedTime = new Intl.DateTimeFormat('pt-BR', {
-                        timeZone: 'America/Sao_Paulo',
-                        dateStyle: 'short',
-                        timeStyle: 'short'
-                    }).format(date);
-                    
-                    return {
-                        x: date.getTime() / 1000,
-                        y: item[key],
-                        time: formattedTime
-                    };
-                });
+                .map(item => ({
+                    x: new Date(item.data).getTime() / 1000,
+                    y: item[key],
+                    time: `${new Date(item.data).toLocaleDateString('pt-BR')} ${item.horario}`
+                }));
         };
 
         drawChartsForAllSensors(getDataBySensorId);
