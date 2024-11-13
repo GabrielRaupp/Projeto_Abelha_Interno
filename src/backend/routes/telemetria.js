@@ -6,7 +6,7 @@ const app = express();
 
 // Habilita o CORS para permitir requisições de outros domínios
 const allowedOrigins = [
-    'https://teste-projeto-gdaj.onrender.com',
+    'https://projeto-abelha-gdaj.onrender.com',
     'http://localhost:3000', // Para ambiente de desenvolvimento local
 ];
 

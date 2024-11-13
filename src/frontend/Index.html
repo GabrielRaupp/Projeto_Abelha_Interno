@@ -11,18 +11,20 @@
         <h1>Estudo das Abelhas Nativas de SC</h1>
     </header>
 
+    <!-- Botão de alternância de tema com ícone de sol e lua -->
+    <div style="text-align: center; margin-top: 10px;">
+        <button class="theme-toggle-btn" onclick="toggleTheme()">
+            <span id="theme-icon">🌞</span>
+        </button>
+    </div>
+
     <main class="main-area">
-        <!-- Descrição sobre as abelhas nativas de SC -->
+        <!-- Seções de conteúdo sobre as abelhas nativas -->
         <section class="card">
             <p>
-                O estado de Santa Catarina, localizado na região sul do Brasil, é conhecido por sua rica biodiversidade, 
-                incluindo uma variedade significativa de abelhas nativas. Esses polinizadores desempenham um papel crucial 
-                nos ecossistemas locais e na agricultura, sendo fundamentais para a reprodução de muitas plantas e, 
-                consequentemente, para a produção de alimentos.
+                O estado de Santa Catarina, localizado na região sul do Brasil, é conhecido por sua rica biodiversidade...
             </p>
         </section>
-
-        <!-- Estudo focado nas abelhas nativas -->
         <section class="card">
             <p>
                 Um estudo recente focado nas abelhas nativas de Santa Catarina visa identificar e catalogar as espécies 
@@ -32,8 +34,6 @@
                 alta qualidade.
             </p>
         </section>
-
-        <!-- Importância das abelhas nativas -->
         <section class="card">
             <h2>Importância das Abelhas Nativas</h2>
             <p>
@@ -49,51 +49,53 @@
             <button onclick="window.location.href='grafico.html'">Ver Gráficos</button>
         </div>
     </main>
+
+    <!-- Rodapé com logos e mapa -->
     <footer class="footer">
         <div class="footer-content">
             <div class="logo-map-section">
-                <!-- Logos dos campi -->
                 <div class="logo-section">
                     <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSN6BlCttJCRr604iJug669sdbUBs5ZB7t1yw&s" alt="Logo IFC Sombrio" class="footer-logo">
                     <img src="https://cecom.ifc.edu.br/wp-content/uploads/sites/10/2022/11/Logo_IFC_vertical_SantaRosadoSul.png" alt="Logo IFC Santa Rosa" class="footer-logo">
                     <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMK4iK61cmJmfmeERXk1otySxyFs2HERnh9w&s" alt="Logo IFC Santa Rosa" class="footer-logo">
                 </div>
-    
-                <!-- Mapa dos dois campi -->
                 <div class="map-section">
                     <div class="campus-map">
                         <h3>IFC Sombrio</h3>
-                        <iframe 
-                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3476.256018123652!2d-49.634179823329004!3d-29.10491417505169!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjnCsDA2JzI0LjIiUyA0OcKwMzgnMDcuNSJX!5e0!3m2!1sen!2sbr!4v1619198549367!5m2!1sen!2sbr" 
-                            title="Mapa do Campus IFC Sombrio"
-                            allowfullscreen=""
-                            loading="lazy"
-                            class="footer-map">
-                        </iframe>
+                        <!-- Mapa correto para o campus IFC Sombrio -->
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3486.128905764229!2d-49.64116902370722!3d-29.101875488212173!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9522163f89863cb7%3A0xc17d2dd5de33a10f!2sInstituto%20Federal%20Catarinense%20-%20Campus%20Sombrio!5e0!3m2!1spt-BR!2sbr!4v1731456934349!5m2!1spt-BR!2sbr" width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
                     </div>
                     <div class="campus-map">
                         <h3>IFC Santa Rosa do Sul</h3>
-                        <iframe 
-                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3476.256018123652!2d-49.8210322!3d-29.0918551!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94db7985b5b1e95f%3A0x59530e773f58c360!2zSW5zdGl0dXRvIFNlZ3JvIEV4cG9zaXRvIFNvbGFSY2hpbywgQ2FtcHVzIFNlbnRhIFJvc2EgZG8gU3Vs!5e0!3m2!1sen!2sbr!4v1619198549367!5m2!1sen!2sbr"
-                            title="Mapa do Campus IFC Santa Rosa do Sul"
-                            allowfullscreen=""
-                            loading="lazy"
-                            class="footer-map">
-                        </iframe>
-                        
-                        
+                        <!-- Mapa correto para o campus IFC Santa Rosa do Sul -->
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3486.326352775326!2d-49.81694792370757!3d-29.096045087949648!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9522166b4090f559%3A0xb824e9b86c91bea2!2sInstituto%20Federal%20Catarinense%2C%20Campus%20Santa%20Rosa%20do%20Sul!5e0!3m2!1spt-BR!2sbr!4v1731456888337!5m2!1spt-BR!2sbr" width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
                     </div>
                 </div>
             </div>
         </div>
-    
-        <!-- Texto de copyright -->
         <p class="footer-text">Instituto Federal Catarinense - Campus Sombrio & Campus Santa Rosa © 2024</p>
     </footer>
     
-    
-    
-    
-    
+
+    <!-- Script para alternar tema -->
+    <script>
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute("data-theme");
+            const newTheme = currentTheme === "dark" ? "light" : "dark";
+            document.documentElement.setAttribute("data-theme", newTheme);
+            localStorage.setItem("theme", newTheme);
+
+            // Atualizar o ícone do botão de tema
+            const themeIcon = document.getElementById("theme-icon");
+            themeIcon.textContent = newTheme === "dark" ? "🌙" : "🌞";
+        }
+
+        // Carregar tema salvo do localStorage
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedTheme = localStorage.getItem("theme") || "light";
+            document.documentElement.setAttribute("data-theme", savedTheme);
+            document.getElementById("theme-icon").textContent = savedTheme === "dark" ? "🌙" : "🌞";
+        });
+    </script>
 </body>
 </html>

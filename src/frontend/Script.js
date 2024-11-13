@@ -23,7 +23,7 @@ function displayLastValue(containerId, values, unit) {
     } else {
         const newValueDisplay = document.createElement('p');
         newValueDisplay.innerText = `Último Valor: ${lastValue} ${unit}`;
-        newValueDisplay.className = 'last-value';  // Garantindo que o valor tenha o estilo correto
+        newValueDisplay.className = 'last-value';
         document.querySelector(containerId).parentNode.appendChild(newValueDisplay);
     }
 }
@@ -45,8 +45,14 @@ function drawLineChart(containerId, title, seriesData, unit) {
         return;
     }
 
-    const labels = seriesData.map(point => new Date(point.x * 1000).toLocaleDateString());
+    const labels = seriesData.map(point => new Date(point.x * 1000).toLocaleDateString('pt-BR', {
+        timeZone: 'America/Sao_Paulo'
+    }));
     const values = seriesData.map(point => point.y);
+
+    // Limpa o conteúdo existente do gráfico para evitar duplicação de botões
+    const chartContainer = document.querySelector(containerId).parentNode;
+    chartContainer.querySelectorAll('.print-button').forEach(button => button.remove());
 
     // Criar gráfico
     new Chartist.Line(containerId, {
@@ -86,7 +92,7 @@ function drawLineChart(containerId, title, seriesData, unit) {
         tooltip.style.display = 'none';
     });
 
-    // Adicionar botão de impressão
+    // Adicionar botão de impressão, garantindo que apenas um botão seja exibido por gráfico
     const printButton = document.createElement('button');
     printButton.innerText = 'Imprimir Gráfico';
     printButton.className = 'print-button';
@@ -94,7 +100,6 @@ function drawLineChart(containerId, title, seriesData, unit) {
         printChart(containerId);
     });
 
-    const chartContainer = document.querySelector(containerId).parentNode;
     chartContainer.appendChild(printButton);
 }
 
@@ -138,11 +143,19 @@ async function fetchData(selectedDate = today) {
         const data = await response.json();
         if (!Array.isArray(data) || data.length === 0) throw new Error("Dados no formato incorreto ou array vazio.");
 
-        const startOfDay = new Date(`${selectedDate}T00:00:00Z`);
-        const endOfDay = new Date(`${selectedDate}T23:59:59Z`);
+        // Ajuste de data para o fuso horário local
+        const startOfDay = new Date(selectedDate);
+        startOfDay.setHours(0, 0, 0, 0); // Início do dia (00:00:00) no horário local
+        startOfDay.setMinutes(startOfDay.getMinutes() - startOfDay.getTimezoneOffset()); // Ajuste de fuso horário
 
+        const endOfDay = new Date(selectedDate);
+        endOfDay.setHours(23, 59, 59, 999); // Fim do dia (23:59:59) no horário local
+        endOfDay.setMinutes(endOfDay.getMinutes() - endOfDay.getTimezoneOffset()); // Ajuste de fuso horário
+
+        // Filtra os dados dentro do intervalo de tempo local
         const filteredData = data.filter(item => {
             const date = new Date(item.data);
+            date.setMinutes(date.getMinutes() - date.getTimezoneOffset()); // Ajuste de fuso horário
             return date >= startOfDay && date <= endOfDay;
         });
 
@@ -152,7 +165,7 @@ async function fetchData(selectedDate = today) {
                 .map(item => ({
                     x: new Date(item.data).getTime() / 1000,
                     y: item[key],
-                    time: `${new Date(item.data).toLocaleDateString('pt-BR')} ${item.horario}`
+                    time: `${new Date(item.data).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })} ${item.horario}`
                 }));
         };
 
@@ -194,8 +207,8 @@ dateSelector.addEventListener('change', selectDate);
 dateSelectorContainer.appendChild(dateSelector);
 document.body.prepend(dateSelectorContainer);
 
-// Atualiza os gráficos a cada 3 minutos
-setInterval(() => fetchData(), 180000);
+// Atualiza os gráficos a cada 7 minutos
+setInterval(() => fetchData(), 420000);
 
 // Carrega os dados inicialmente quando a página é carregada
 document.addEventListener('DOMContentLoaded', () => fetchData());
