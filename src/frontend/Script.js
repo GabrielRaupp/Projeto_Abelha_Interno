@@ -28,33 +28,32 @@ function displayLastValue(containerId, values, unit) {
     }
 }
 
-// Função para exibir o título
-function displayTitle(containerId, title) {
+// Função para exibir o título e botão de impressão
+function displayTitleAndPrintButton(containerId, title) {
     const container = document.querySelector(containerId).parentNode;
     if (!container.querySelector('h3')) {
         const titleElement = document.createElement('h3');
         titleElement.innerText = title;
         container.insertBefore(titleElement, document.querySelector(containerId));
+
+        const printButton = document.createElement('button');
+        printButton.innerText = 'Imprimir Gráfico';
+        printButton.className = 'print-button';
+        printButton.onclick = () => printChart(containerId);
+        container.insertBefore(printButton, titleElement.nextSibling);
     }
 }
 
 // Função para desenhar o gráfico de linha
 function drawLineChart(containerId, title, seriesData, unit) {
     if (seriesData.length === 0) {
-        document.querySelector(containerId).innerHTML = `<p>Sem dados para exibir.</p>`;
+        document.querySelector(containerId).innerHTML = "<p>Sem dados para exibir.</p>";
         return;
     }
 
-    const labels = seriesData.map(point => new Date(point.x * 1000).toLocaleDateString('pt-BR', {
-        timeZone: 'America/Sao_Paulo'
-    }));
+    const labels = seriesData.map(point => new Date(point.x * 1000).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }));
     const values = seriesData.map(point => point.y);
 
-    // Limpa o conteúdo existente do gráfico para evitar duplicação de botões
-    const chartContainer = document.querySelector(containerId).parentNode;
-    chartContainer.querySelectorAll('.print-button').forEach(button => button.remove());
-
-    // Criar gráfico
     new Chartist.Line(containerId, {
         labels: labels,
         series: [values]
@@ -70,18 +69,16 @@ function drawLineChart(containerId, title, seriesData, unit) {
         axisX: { showLabel: false, showGrid: false }
     });
 
-    // Exibir o último valor e título
     displayLastValue(containerId, values, unit);
-    displayTitle(containerId, title);
+    displayTitleAndPrintButton(containerId, title);
 
-    // Criar tooltip
     const tooltip = createTooltip();
     const chartElement = document.querySelector(containerId);
     chartElement.addEventListener('mousemove', (event) => {
         const pointIndex = Math.floor((event.offsetX / chartElement.offsetWidth) * seriesData.length);
         if (pointIndex >= 0 && pointIndex < seriesData.length) {
             const point = seriesData[pointIndex];
-            tooltip.innerText = `Valor: ${point.y} ${unit}\nData: ${point.time}`;
+            tooltip.innerText = `Valor: ${point.y} ${unit}\nHorário: ${point.time}`;
             tooltip.style.left = `${event.pageX + 10}px`;
             tooltip.style.top = `${event.pageY + 10}px`;
             tooltip.style.display = 'block';
@@ -91,25 +88,16 @@ function drawLineChart(containerId, title, seriesData, unit) {
     chartElement.addEventListener('mouseleave', () => {
         tooltip.style.display = 'none';
     });
-
-    // Adicionar botão de impressão, garantindo que apenas um botão seja exibido por gráfico
-    const printButton = document.createElement('button');
-    printButton.innerText = 'Imprimir Gráfico';
-    printButton.className = 'print-button';
-    printButton.addEventListener('click', () => {
-        printChart(containerId);
-    });
-
-    chartContainer.appendChild(printButton);
 }
 
 // Função para imprimir o gráfico
 function printChart(containerId) {
-    const chartElement = document.querySelector(containerId);
-    const printWindow = window.open('', '', 'width=800,height=600');
-    printWindow.document.write('<html><head><title>Impressão de Gráfico</title></head><body>');
-    printWindow.document.write('<h2>Gráfico de Telemetria</h2>');
-    printWindow.document.write(chartElement.outerHTML);
+    const chartContainer = document.querySelector(containerId).parentNode;
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write('<html><head><title>Imprimir Gráfico</title>');
+    printWindow.document.write('<style>body { font-family: Arial, sans-serif; }</style>');
+    printWindow.document.write('</head><body>');
+    printWindow.document.write(chartContainer.innerHTML);
     printWindow.document.write('</body></html>');
     printWindow.document.close();
     printWindow.print();
@@ -134,7 +122,7 @@ function drawChartsForAllSensors(getDataBySensorId) {
     drawLineChart('#graficoCaixa12Pressao', 'Pressão', getDataBySensorId('6', 'pressao'), 'hPa');
 }
 
-// Função para buscar e filtrar dados
+// Função para buscar e filtrar dados com horário de Brasília
 async function fetchData(selectedDate = today) {
     try {
         const response = await fetch('/api/telemetria');
@@ -143,30 +131,31 @@ async function fetchData(selectedDate = today) {
         const data = await response.json();
         if (!Array.isArray(data) || data.length === 0) throw new Error("Dados no formato incorreto ou array vazio.");
 
-        // Ajuste de data para o fuso horário local
-        const startOfDay = new Date(selectedDate);
-        startOfDay.setHours(0, 0, 0, 0); // Início do dia (00:00:00) no horário local
-        startOfDay.setMinutes(startOfDay.getMinutes() - startOfDay.getTimezoneOffset()); // Ajuste de fuso horário
+        const startOfDay = new Date(`${selectedDate}T00:00:00-03:00`);
+        const endOfDay = new Date(`${selectedDate}T23:59:59-03:00`);
 
-        const endOfDay = new Date(selectedDate);
-        endOfDay.setHours(23, 59, 59, 999); // Fim do dia (23:59:59) no horário local
-        endOfDay.setMinutes(endOfDay.getMinutes() - endOfDay.getTimezoneOffset()); // Ajuste de fuso horário
-
-        // Filtra os dados dentro do intervalo de tempo local
         const filteredData = data.filter(item => {
             const date = new Date(item.data);
-            date.setMinutes(date.getMinutes() - date.getTimezoneOffset()); // Ajuste de fuso horário
             return date >= startOfDay && date <= endOfDay;
         });
 
         const getDataBySensorId = (sensorId, key) => {
             return filteredData
                 .filter(item => item.sensor_id === sensorId)
-                .map(item => ({
-                    x: new Date(item.data).getTime() / 1000,
-                    y: item[key],
-                    time: `${new Date(item.data).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })} ${item.horario}`
-                }));
+                .map(item => {
+                    const date = new Date(item.data);
+                    const formattedTime = new Intl.DateTimeFormat('pt-BR', {
+                        timeZone: 'America/Sao_Paulo',
+                        dateStyle: 'short',
+                        timeStyle: 'short'
+                    }).format(date);
+                    
+                    return {
+                        x: date.getTime() / 1000,
+                        y: item[key],
+                        time: formattedTime
+                    };
+                });
         };
 
         drawChartsForAllSensors(getDataBySensorId);
@@ -207,8 +196,8 @@ dateSelector.addEventListener('change', selectDate);
 dateSelectorContainer.appendChild(dateSelector);
 document.body.prepend(dateSelectorContainer);
 
-// Atualiza os gráficos a cada 7 minutos
-setInterval(() => fetchData(), 420000);
+// Atualiza os gráficos a cada 3 minutos
+setInterval(() => fetchData(), 180000);
 
 // Carrega os dados inicialmente quando a página é carregada
 document.addEventListener('DOMContentLoaded', () => fetchData());

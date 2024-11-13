@@ -12,7 +12,11 @@
     <header>
         <h1>Gráficos de Telemetria</h1>
     </header>
-
+    <div style="text-align: center; margin-top: 10px;">
+        <button class="theme-toggle-btn" onclick="toggleTheme()">
+            <span id="theme-icon">🌞</span>
+        </button>
+    </div>
     <main class="graphs-area">
         <!-- Ambiente Section -->
         <section class="graph-container" aria-labelledby="ambiente-title">
@@ -89,5 +93,25 @@
     </main>
 
     <script src="Script.js"></script>
+    <!-- Script para alternar tema -->
+    <script>
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute("data-theme");
+            const newTheme = currentTheme === "dark" ? "light" : "dark";
+            document.documentElement.setAttribute("data-theme", newTheme);
+            localStorage.setItem("theme", newTheme);
+
+            // Atualizar o ícone do botão de tema
+            const themeIcon = document.getElementById("theme-icon");
+            themeIcon.textContent = newTheme === "dark" ? "🌙" : "🌞";
+        }
+
+        // Carregar tema salvo do localStorage
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedTheme = localStorage.getItem("theme") || "light";
+            document.documentElement.setAttribute("data-theme", savedTheme);
+            document.getElementById("theme-icon").textContent = savedTheme === "dark" ? "🌙" : "🌞";
+        });
+    </script>
 </body>
 </html>
