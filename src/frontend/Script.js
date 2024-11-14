@@ -28,30 +28,39 @@ function displayLastValue(containerId, values, unit) {
     }
 }
 
-// Função para exibir o título e botão de impressão
-function displayTitleAndPrintButton(containerId, title) {
+// Função para exibir o título
+function displayTitle(containerId, title) {
     const container = document.querySelector(containerId).parentNode;
     if (!container.querySelector('h3')) {
         const titleElement = document.createElement('h3');
         titleElement.innerText = title;
         container.insertBefore(titleElement, document.querySelector(containerId));
-
-        const printButton = document.createElement('button');
-        printButton.innerText = 'Imprimir Gráfico';
-        printButton.className = 'print-button';
-        printButton.onclick = () => printChart(containerId);
-        container.insertBefore(printButton, titleElement.nextSibling);
     }
 }
 
-// Função para desenhar o gráfico de linha
+// Função para baixar os dados do gráfico como CSV
+function downloadDataAsCSV(data, title) {
+    const csvContent = `data:text/csv;charset=utf-8,` + 
+        `Data,Valor\n` + 
+        data.map(item => `${item.time},${item.y}`).join('\n');
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `${title}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Função para desenhar o gráfico de linha com tooltip e botão de download
 function drawLineChart(containerId, title, seriesData, unit) {
     if (seriesData.length === 0) {
-        document.querySelector(containerId).innerHTML = "<p>Sem dados para exibir.</p>";
+        document.querySelector(containerId).innerHTML = `<p>Sem dados para exibir.</p>`;
         return;
     }
 
-    const labels = seriesData.map(point => new Date(point.x * 1000).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }));
+    const labels = seriesData.map(point => new Date(point.x * 1000).toLocaleDateString());
     const values = seriesData.map(point => point.y);
 
     new Chartist.Line(containerId, {
@@ -70,15 +79,16 @@ function drawLineChart(containerId, title, seriesData, unit) {
     });
 
     displayLastValue(containerId, values, unit);
-    displayTitleAndPrintButton(containerId, title);
+    displayTitle(containerId, title);
 
     const tooltip = createTooltip();
     const chartElement = document.querySelector(containerId);
+
     chartElement.addEventListener('mousemove', (event) => {
         const pointIndex = Math.floor((event.offsetX / chartElement.offsetWidth) * seriesData.length);
         if (pointIndex >= 0 && pointIndex < seriesData.length) {
             const point = seriesData[pointIndex];
-            tooltip.innerText = `Valor: ${point.y} ${unit}\nHorário: ${point.time}`;
+            tooltip.innerText = `Valor: ${point.y} ${unit}\nData: ${point.time}`;
             tooltip.style.left = `${event.pageX + 10}px`;
             tooltip.style.top = `${event.pageY + 10}px`;
             tooltip.style.display = 'block';
@@ -88,19 +98,19 @@ function drawLineChart(containerId, title, seriesData, unit) {
     chartElement.addEventListener('mouseleave', () => {
         tooltip.style.display = 'none';
     });
-}
 
-// Função para imprimir o gráfico
-function printChart(containerId) {
-    const chartContainer = document.querySelector(containerId).parentNode;
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write('<html><head><title>Imprimir Gráfico</title>');
-    printWindow.document.write('<style>body { font-family: Arial, sans-serif; }</style>');
-    printWindow.document.write('</head><body>');
-    printWindow.document.write(chartContainer.innerHTML);
-    printWindow.document.write('</body></html>');
-    printWindow.document.close();
-    printWindow.print();
+    // Remove o botão de download anterior, se existir
+    const existingButton = chartElement.parentNode.querySelector('.download-button');
+    if (existingButton) {
+        existingButton.remove();
+    }
+
+    // Adiciona o botão de download
+    const downloadButton = document.createElement('button');
+    downloadButton.innerText = 'Baixar Dados';
+    downloadButton.className = 'download-button';
+    downloadButton.addEventListener('click', () => downloadDataAsCSV(seriesData, title));
+    chartElement.parentNode.appendChild(downloadButton);
 }
 
 // Função para desenhar gráficos para todos os sensores
@@ -122,7 +132,7 @@ function drawChartsForAllSensors(getDataBySensorId) {
     drawLineChart('#graficoCaixa12Pressao', 'Pressão', getDataBySensorId('6', 'pressao'), 'hPa');
 }
 
-// Função para buscar e filtrar dados com horário de Brasília
+// Função para buscar e filtrar dados
 async function fetchData(selectedDate = today) {
     try {
         const response = await fetch('/api/telemetria');
@@ -131,8 +141,8 @@ async function fetchData(selectedDate = today) {
         const data = await response.json();
         if (!Array.isArray(data) || data.length === 0) throw new Error("Dados no formato incorreto ou array vazio.");
 
-        const startOfDay = new Date(`${selectedDate}T00:00:00-03:00`);
-        const endOfDay = new Date(`${selectedDate}T23:59:59-03:00`);
+        const startOfDay = new Date(`${selectedDate}T00:00:00Z`);
+        const endOfDay = new Date(`${selectedDate}T23:59:59Z`);
 
         const filteredData = data.filter(item => {
             const date = new Date(item.data);
@@ -142,20 +152,11 @@ async function fetchData(selectedDate = today) {
         const getDataBySensorId = (sensorId, key) => {
             return filteredData
                 .filter(item => item.sensor_id === sensorId)
-                .map(item => {
-                    const date = new Date(item.data);
-                    const formattedTime = new Intl.DateTimeFormat('pt-BR', {
-                        timeZone: 'America/Sao_Paulo',
-                        dateStyle: 'short',
-                        timeStyle: 'short'
-                    }).format(date);
-                    
-                    return {
-                        x: date.getTime() / 1000,
-                        y: item[key],
-                        time: formattedTime
-                    };
-                });
+                .map(item => ({
+                    x: new Date(item.data).getTime() / 1000,
+                    y: item[key],
+                    time: `${new Date(item.data).toLocaleDateString('pt-BR')} ${item.horario}`
+                }));
         };
 
         drawChartsForAllSensors(getDataBySensorId);
@@ -168,7 +169,7 @@ async function fetchData(selectedDate = today) {
 // Função de seleção de data
 function selectDate() {
     const dateInput = document.getElementById('dateInput').value;
-    const minDate = new Date("2024-08-29").toISOString().split('T')[0];
+    const minDate = "2024-08-29";
 
     if (dateInput < minDate) {
         alert("Por favor, selecione uma data a partir de 2024-08-29.");
@@ -197,7 +198,7 @@ dateSelectorContainer.appendChild(dateSelector);
 document.body.prepend(dateSelectorContainer);
 
 // Atualiza os gráficos a cada 3 minutos
-setInterval(() => fetchData(), 180000);
+setInterval(() => fetchData(), 600000);
 
 // Carrega os dados inicialmente quando a página é carregada
 document.addEventListener('DOMContentLoaded', () => fetchData());
