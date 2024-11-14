@@ -99,6 +99,12 @@ function drawLineChart(containerId, title, seriesData, unit) {
         tooltip.style.display = 'none';
     });
 
+    // Remover o botão de download anterior, se existir
+    const existingButton = chartElement.parentNode.querySelector('.download-button');
+    if (existingButton) {
+        existingButton.remove();
+    }
+
     // Adiciona o botão de download
     const downloadButton = document.createElement('button');
     downloadButton.innerText = 'Baixar Dados';
