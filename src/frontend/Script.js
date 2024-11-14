@@ -141,8 +141,19 @@ async function fetchData(selectedDate = today) {
         const data = await response.json();
         if (!Array.isArray(data) || data.length === 0) throw new Error("Dados no formato incorreto ou array vazio.");
 
-        const startOfDay = new Date(`${selectedDate}T00:00:00Z`);
-        const endOfDay = new Date(`${selectedDate}T23:59:59Z`);
+        // Ajustando o horário para o local, usando UTC para garantir que pegamos o dia correto
+        const startOfDay = new Date(Date.UTC(
+            new Date(selectedDate).getFullYear(),
+            new Date(selectedDate).getMonth(),
+            new Date(selectedDate).getDate(),
+            0, 0, 0
+        ));
+        const endOfDay = new Date(Date.UTC(
+            new Date(selectedDate).getFullYear(),
+            new Date(selectedDate).getMonth(),
+            new Date(selectedDate).getDate(),
+            23, 59, 59
+        ));
 
         const filteredData = data.filter(item => {
             const date = new Date(item.data);
@@ -197,7 +208,7 @@ dateSelector.addEventListener('change', selectDate);
 dateSelectorContainer.appendChild(dateSelector);
 document.body.prepend(dateSelectorContainer);
 
-// Atualiza os gráficos a cada 3 minutos
+// Atualiza os gráficos a cada 10 minutos
 setInterval(() => fetchData(), 600000);
 
 // Carrega os dados inicialmente quando a página é carregada
