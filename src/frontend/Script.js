@@ -63,7 +63,7 @@ function drawLineChart(containerId, title, seriesData, unit) {
     const labels = seriesData.map(point => new Date(point.x * 1000).toLocaleDateString());
     const values = seriesData.map(point => point.y);
 
-    new Chartist.Line(containerId, {
+    const chart = new Chartist.Line(containerId, {
         labels: labels,
         series: [values]
     }, {
@@ -84,6 +84,7 @@ function drawLineChart(containerId, title, seriesData, unit) {
     const tooltip = createTooltip();
     const chartElement = document.querySelector(containerId);
 
+    // Adiciona eventos do gráfico para mostrar a informação do tooltip
     chartElement.addEventListener('mousemove', (event) => {
         const pointIndex = Math.floor((event.offsetX / chartElement.offsetWidth) * seriesData.length);
         if (pointIndex >= 0 && pointIndex < seriesData.length) {
@@ -197,7 +198,7 @@ dateSelector.addEventListener('change', selectDate);
 dateSelectorContainer.appendChild(dateSelector);
 document.body.prepend(dateSelectorContainer);
 
-// Atualiza os gráficos a cada 3 minutos
+// Atualiza os gráficos a cada 10 minutos
 setInterval(() => fetchData(), 600000);
 
 // Carrega os dados inicialmente quando a página é carregada
