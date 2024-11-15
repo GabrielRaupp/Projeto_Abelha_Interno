@@ -9,6 +9,7 @@ function createTooltip() {
     tooltip.style.color = 'white';
     tooltip.style.padding = '5px';
     tooltip.style.borderRadius = '4px';
+    tooltip.style.zIndex = '1000';
     document.body.appendChild(tooltip);
     return tooltip;
 }
@@ -38,16 +39,26 @@ function displayTitle(containerId, title) {
     }
 }
 
-// Função para baixar os dados do gráfico como CSV
+// Função para baixar os dados do gráfico como CSV com data e hora
 function downloadDataAsCSV(data, title) {
-    const csvContent = `data:text/csv;charset=utf-8,` + 
-        `Data,Valor\n` + 
-        data.map(item => `${item.time},${item.y}`).join('\n');
+    const currentDate = new Date().toLocaleString('pt-BR');
+    
+    const csvContent = `data:text/csv;charset=utf-8,` +
+        `Gráfico Baixado: ${title}\n` +   
+        `Data da Geração: ${currentDate}\n\n` +  
+        `Data,Horário,Valor\n` +  
+        data.map(item => {
+            const formattedDate = new Date(item.x * 1000); 
+            const date = formattedDate.toLocaleDateString('pt-BR');  
+            const time = formattedDate.toLocaleTimeString('pt-BR'); 
+            const value = item.y; 
+            return `${date},${time},${value}`;
+        }).join('\n');  
 
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `${title}.csv`);
+    link.setAttribute("download", `${title}_dados.csv`);  
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -60,7 +71,7 @@ function drawLineChart(containerId, title, seriesData, unit) {
         return;
     }
 
-    const labels = seriesData.map(point => new Date(point.x * 1000).toLocaleDateString());
+    const labels = seriesData.map(point => new Date(point.x * 1000).toLocaleDateString('pt-BR'));
     const values = seriesData.map(point => point.y);
 
     const chart = new Chartist.Line(containerId, {
@@ -84,7 +95,6 @@ function drawLineChart(containerId, title, seriesData, unit) {
     const tooltip = createTooltip();
     const chartElement = document.querySelector(containerId);
 
-    // Adiciona eventos do gráfico para mostrar a informação do tooltip
     chartElement.addEventListener('mousemove', (event) => {
         const pointIndex = Math.floor((event.offsetX / chartElement.offsetWidth) * seriesData.length);
         if (pointIndex >= 0 && pointIndex < seriesData.length) {
@@ -100,13 +110,11 @@ function drawLineChart(containerId, title, seriesData, unit) {
         tooltip.style.display = 'none';
     });
 
-    // Remover o botão de download anterior, se existir
     const existingButton = chartElement.parentNode.querySelector('.download-button');
     if (existingButton) {
         existingButton.remove();
     }
 
-    // Adiciona o botão de download
     const downloadButton = document.createElement('button');
     downloadButton.innerText = 'Baixar Dados';
     downloadButton.className = 'download-button';
@@ -116,32 +124,37 @@ function drawLineChart(containerId, title, seriesData, unit) {
 
 // Função para desenhar gráficos para todos os sensores
 function drawChartsForAllSensors(getDataBySensorId) {
-    drawLineChart('#graficoAmbienteTemp', 'Temperatura', getDataBySensorId('7', 'temperatura'), '°C');
-    drawLineChart('#graficoAmbienteUmid', 'Umidade', getDataBySensorId('7', 'umidade'), '%');
-    drawLineChart('#graficoAmbientePressao', 'Pressão', getDataBySensorId('7', 'pressao'), 'hPa');
-    
-    drawLineChart('#graficoCaixa9Temp', 'Temperatura', getDataBySensorId('4', 'temperatura'), '°C');
-    drawLineChart('#graficoCaixa9Umid', 'Umidade', getDataBySensorId('4', 'umidade'), '%');
-    drawLineChart('#graficoCaixa9Pressao', 'Pressão', getDataBySensorId('4', 'pressao'), 'hPa');
-    
-    drawLineChart('#graficoCaixa10Temp', 'Temperatura', getDataBySensorId('5', 'temperatura'), '°C');
-    drawLineChart('#graficoCaixa10Umid', 'Umidade', getDataBySensorId('5', 'umidade'), '%');
-    drawLineChart('#graficoCaixa10Pressao', 'Pressão', getDataBySensorId('5', 'pressao'), 'hPa');
-    
-    drawLineChart('#graficoCaixa12Temp', 'Temperatura', getDataBySensorId('6', 'temperatura'), '°C');
-    drawLineChart('#graficoCaixa12Umid', 'Umidade', getDataBySensorId('6', 'umidade'), '%');
-    drawLineChart('#graficoCaixa12Pressao', 'Pressão', getDataBySensorId('6', 'pressao'), 'hPa');
+    const sensorMappings = [
+        { container: '#graficoAmbienteTemp', title: 'Temperatura', sensor: '7', key: 'temperatura', unit: '°C' },
+        { container: '#graficoAmbienteUmid', title: 'Umidade', sensor: '7', key: 'umidade', unit: '%' },
+        { container: '#graficoAmbientePressao', title: 'Pressão', sensor: '7', key: 'pressao', unit: 'hPa' },
+
+        { container: '#graficoCaixa9Temp', title: 'Temperatura', sensor: '4', key: 'temperatura', unit: '°C' },
+        { container: '#graficoCaixa9Umid', title: 'Umidade', sensor: '4', key: 'umidade', unit: '%' },
+        { container: '#graficoCaixa9Pressao', title: 'Pressão', sensor: '4', key: 'pressao', unit: 'hPa' },
+
+        { container: '#graficoCaixa10Temp', title: 'Temperatura', sensor: '5', key: 'temperatura', unit: '°C' },
+        { container: '#graficoCaixa10Umid', title: 'Umidade', sensor: '5', key: 'umidade', unit: '%' },
+        { container: '#graficoCaixa10Pressao', title: 'Pressão', sensor: '5', key: 'pressao', unit: 'hPa' },
+
+        { container: '#graficoCaixa12Temp', title: 'Temperatura', sensor: '6', key: 'temperatura', unit: '°C' },
+        { container: '#graficoCaixa12Umid', title: 'Umidade', sensor: '6', key: 'umidade', unit: '%' },
+        { container: '#graficoCaixa12Pressao', title: 'Pressão', sensor: '6', key: 'pressao', unit: 'hPa' },
+    ];
+
+    sensorMappings.forEach(mapping => {
+        const data = getDataBySensorId(mapping.sensor, mapping.key);
+        drawLineChart(mapping.container, mapping.title, data, mapping.unit);
+    });
 }
 
 // Função para buscar e filtrar dados
-async function fetchData(selectedDate = today) {
+async function fetchData(selectedDate) {
     try {
         const response = await fetch('/api/telemetria');
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
         const data = await response.json();
-        if (!Array.isArray(data) || data.length === 0) throw new Error("Dados no formato incorreto ou array vazio.");
-
         const startOfDay = new Date(`${selectedDate}T00:00:00Z`);
         const endOfDay = new Date(`${selectedDate}T23:59:59Z`);
 
@@ -150,15 +163,13 @@ async function fetchData(selectedDate = today) {
             return date >= startOfDay && date <= endOfDay;
         });
 
-        const getDataBySensorId = (sensorId, key) => {
-            return filteredData
-                .filter(item => item.sensor_id === sensorId)
-                .map(item => ({
-                    x: new Date(item.data).getTime() / 1000,
-                    y: item[key],
-                    time: `${new Date(item.data).toLocaleDateString('pt-BR')} ${item.horario}`
-                }));
-        };
+        const getDataBySensorId = (sensorId, key) => filteredData
+            .filter(item => item.sensor_id === sensorId)
+            .map(item => ({
+                x: new Date(item.data).getTime() / 1000,
+                y: item[key],
+                time: `${new Date(item.data).toLocaleDateString('pt-BR')} ${item.horario}`
+            }));
 
         drawChartsForAllSensors(getDataBySensorId);
     } catch (error) {
@@ -167,39 +178,34 @@ async function fetchData(selectedDate = today) {
     }
 }
 
-// Função de seleção de data
-function selectDate() {
-    const dateInput = document.getElementById('dateInput').value;
-    const minDate = "2024-08-29";
+// Configuração inicial
+document.addEventListener('DOMContentLoaded', () => {
+    // Criar o container estilizado para o seletor de data
+    const dateSelectorContainer = document.createElement('div');
+    dateSelectorContainer.className = 'date-selector-container';
 
-    if (dateInput < minDate) {
-        alert("Por favor, selecione uma data a partir de 2024-08-29.");
-        return;
-    }
+    const dateInput = document.createElement('input');
+    dateInput.type = 'date';
+    dateInput.id = 'dateInput';
+    dateInput.className = 'date-input';
 
-    fetchData(dateInput);
-}
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.value = today;
+    dateSelectorContainer.appendChild(dateInput);
 
-// Configuração inicial do seletor de data
-const dateSelectorContainer = document.createElement('div');
-dateSelectorContainer.className = 'date-selector-container';
-dateSelectorContainer.innerHTML = `<label for="dateInput" class="date-label">Selecione a Data:</label>`;
+    document.body.prepend(dateSelectorContainer);
 
-const dateSelector = document.createElement('input');
-dateSelector.type = 'date';
-dateSelector.id = 'dateInput';
-dateSelector.min = "2024-08-29";
-dateSelector.className = 'date-input';
+    // Função para buscar e atualizar dados
+    const updateData = () => fetchData(dateInput.value);
 
-const today = new Date().toISOString().split('T')[0];
-dateSelector.value = today;
-dateSelector.addEventListener('change', selectDate);
+    // Inicializar gráficos com a data de hoje
+    updateData();
 
-dateSelectorContainer.appendChild(dateSelector);
-document.body.prepend(dateSelectorContainer);
+    // Atualizar gráficos ao mudar a data
+    dateInput.addEventListener('change', () => {
+        updateData();
+    });
 
-// Atualiza os gráficos a cada 10 minutos
-setInterval(() => fetchData(), 600000);
-
-// Carrega os dados inicialmente quando a página é carregada
-document.addEventListener('DOMContentLoaded', () => fetchData());
+    // Atualização automática a cada 5 minutos (300.000 ms)
+    setInterval(updateData, 300000);
+});
