@@ -42,23 +42,21 @@ function displayTitle(containerId, title) {
 // Função para baixar os dados do gráfico como CSV com data e hora
 function downloadDataAsCSV(data, title) {
     const currentDate = new Date().toLocaleString('pt-BR');
-    
     const csvContent = `data:text/csv;charset=utf-8,` +
-        `Gráfico Baixado: ${title}\n` +   
-        `Data da Geração: ${currentDate}\n\n` +  
-        `Data,Horário,Valor\n` +  
+        `Gráfico Baixado: ${title}\n` +
+        `Data da Geração: ${currentDate}\n\n` +
+        `Data,Horário,Valor\n` +
         data.map(item => {
-            const formattedDate = new Date(item.x * 1000); 
-            const date = formattedDate.toLocaleDateString('pt-BR');  
-            const time = formattedDate.toLocaleTimeString('pt-BR'); 
-            const value = item.y; 
-            return `${date},${time},${value}`;
-        }).join('\n');  
+            const formattedDate = new Date(item.x * 1000);
+            const date = formattedDate.toLocaleDateString('pt-BR');
+            const time = formattedDate.toLocaleTimeString('pt-BR');
+            return `${date},${time},${item.y}`;
+        }).join('\n');
 
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `${title}_dados.csv`);  
+    link.setAttribute("download", `${title}_dados.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -128,15 +126,12 @@ function drawChartsForAllSensors(getDataBySensorId) {
         { container: '#graficoAmbienteTemp', title: 'Temperatura', sensor: '7', key: 'temperatura', unit: '°C' },
         { container: '#graficoAmbienteUmid', title: 'Umidade', sensor: '7', key: 'umidade', unit: '%' },
         { container: '#graficoAmbientePressao', title: 'Pressão', sensor: '7', key: 'pressao', unit: 'hPa' },
-
         { container: '#graficoCaixa9Temp', title: 'Temperatura', sensor: '4', key: 'temperatura', unit: '°C' },
         { container: '#graficoCaixa9Umid', title: 'Umidade', sensor: '4', key: 'umidade', unit: '%' },
         { container: '#graficoCaixa9Pressao', title: 'Pressão', sensor: '4', key: 'pressao', unit: 'hPa' },
-
         { container: '#graficoCaixa10Temp', title: 'Temperatura', sensor: '5', key: 'temperatura', unit: '°C' },
         { container: '#graficoCaixa10Umid', title: 'Umidade', sensor: '5', key: 'umidade', unit: '%' },
         { container: '#graficoCaixa10Pressao', title: 'Pressão', sensor: '5', key: 'pressao', unit: 'hPa' },
-
         { container: '#graficoCaixa12Temp', title: 'Temperatura', sensor: '6', key: 'temperatura', unit: '°C' },
         { container: '#graficoCaixa12Umid', title: 'Umidade', sensor: '6', key: 'umidade', unit: '%' },
         { container: '#graficoCaixa12Pressao', title: 'Pressão', sensor: '6', key: 'pressao', unit: 'hPa' },
@@ -155,8 +150,12 @@ async function fetchData(selectedDate) {
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
         const data = await response.json();
-        const startOfDay = new Date(`${selectedDate}T00:00:00Z`);
-        const endOfDay = new Date(`${selectedDate}T23:59:59Z`);
+
+        const startOfDay = new Date(selectedDate);
+        startOfDay.setHours(0, 0, 0, 0);
+
+        const endOfDay = new Date(selectedDate);
+        endOfDay.setHours(23, 59, 59, 999);
 
         const filteredData = data.filter(item => {
             const date = new Date(item.data);
@@ -180,7 +179,6 @@ async function fetchData(selectedDate) {
 
 // Configuração inicial
 document.addEventListener('DOMContentLoaded', () => {
-    // Criar o container estilizado para o seletor de data
     const dateSelectorContainer = document.createElement('div');
     dateSelectorContainer.className = 'date-selector-container';
 
@@ -195,17 +193,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.body.prepend(dateSelectorContainer);
 
-    // Função para buscar e atualizar dados
     const updateData = () => fetchData(dateInput.value);
 
-    // Inicializar gráficos com a data de hoje
     updateData();
-
-    // Atualizar gráficos ao mudar a data
-    dateInput.addEventListener('change', () => {
-        updateData();
-    });
-
-    // Atualização automática a cada 5 minutos (300.000 ms)
-    setInterval(updateData, 300000);
+    dateInput.addEventListener('change', updateData);
+    setInterval(updateData, 15000);
 });
