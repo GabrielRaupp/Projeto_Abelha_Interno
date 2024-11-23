@@ -53,15 +53,15 @@ function downloadDataAsCSV(data, title) {
         return;
     }
 
-    const currentDate = new Date().toLocaleString('pt-BR');
+    const currentDate = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
     const csvContent = `data:text/csv;charset=utf-8,` +
         `Gráfico Baixado: ${title}\n` +
         `Data da Geração: ${currentDate}\n\n` +
         `Data,Horário,Valor\n` +
         data.map(item => {
             const formattedDate = new Date(item.x * 1000);
-            const date = formattedDate.toLocaleDateString('pt-BR');
-            const time = formattedDate.toLocaleTimeString('pt-BR');
+            const date = formattedDate.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+            const time = formattedDate.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo' });
             return `${date},${time},${item.y}`;
         }).join('\n');
 
@@ -182,8 +182,6 @@ function drawChartsForAllSensors(getDataBySensorId) {
         { container: '#graficoCaixa12Temp', title: 'Temperatura', sensor: '6', key: 'temperatura', unit: '°C' },
         { container: '#graficoCaixa12Umid', title: 'Umidade', sensor: '6', key: 'umidade', unit: '%' },
         { container: '#graficoCaixa12Pressao', title: 'Pressão', sensor: '6', key: 'pressao', unit: 'hPa' },
-
-    
     ];
 
     sensorMappings.forEach(mapping => {
@@ -204,13 +202,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const today = new Date().toISOString().split('T')[0];
     dateInput.value = today;
-    dateSelectorContainer.appendChild(dateInput);
 
-    document.body.prepend(dateSelectorContainer);
+    const button = document.createElement('button');
+    button.id = 'updateCharts';
+    button.innerText = 'Atualizar';
+    button.addEventListener('click', () => fetchData(dateInput.value));
 
-    const updateData = () => fetchData(dateInput.value);
+    dateSelectorContainer.append(dateInput, button);
+    document.querySelector('.graphs-area').prepend(dateSelectorContainer);
 
-    updateData();
-    dateInput.addEventListener('change', updateData);
-    setInterval(updateData, 30000);
+    fetchData(today);
 });
