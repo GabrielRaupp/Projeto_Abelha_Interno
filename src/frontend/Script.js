@@ -53,15 +53,15 @@ function downloadDataAsCSV(data, title) {
         return;
     }
 
-    const currentDate = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+    const currentDate = new Date().toLocaleString('pt-BR');
     const csvContent = `data:text/csv;charset=utf-8,` +
         `Gráfico Baixado: ${title}\n` +
         `Data da Geração: ${currentDate}\n\n` +
         `Data,Horário,Valor\n` +
         data.map(item => {
             const formattedDate = new Date(item.x * 1000);
-            const date = formattedDate.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
-            const time = formattedDate.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+            const date = formattedDate.toLocaleDateString('pt-BR');
+            const time = formattedDate.toLocaleTimeString('pt-BR');
             return `${date},${time},${item.y}`;
         }).join('\n');
 
@@ -170,15 +170,15 @@ function drawChartsForAllSensors(getDataBySensorId) {
         { container: '#graficoAmbienteTemp', title: 'Temperatura', sensor: '7', key: 'temperatura', unit: '°C' },
         { container: '#graficoAmbienteUmid', title: 'Umidade', sensor: '7', key: 'umidade', unit: '%' },
         { container: '#graficoAmbientePressao', title: 'Pressão', sensor: '7', key: 'pressao', unit: 'hPa' },
-
+    
         { container: '#graficoCaixa9Temp', title: 'Temperatura', sensor: '4', key: 'temperatura', unit: '°C' },
         { container: '#graficoCaixa9Umid', title: 'Umidade', sensor: '4', key: 'umidade', unit: '%' },
         { container: '#graficoCaixa9Pressao', title: 'Pressão', sensor: '4', key: 'pressao', unit: 'hPa' },
-
+    
         { container: '#graficoCaixa10Temp', title: 'Temperatura', sensor: '5', key: 'temperatura', unit: '°C' },
         { container: '#graficoCaixa10Umid', title: 'Umidade', sensor: '5', key: 'umidade', unit: '%' },
         { container: '#graficoCaixa10Pressao', title: 'Pressão', sensor: '5', key: 'pressao', unit: 'hPa' },
-
+    
         { container: '#graficoCaixa12Temp', title: 'Temperatura', sensor: '6', key: 'temperatura', unit: '°C' },
         { container: '#graficoCaixa12Umid', title: 'Umidade', sensor: '6', key: 'umidade', unit: '%' },
         { container: '#graficoCaixa12Pressao', title: 'Pressão', sensor: '6', key: 'pressao', unit: 'hPa' },
@@ -202,14 +202,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const today = new Date().toISOString().split('T')[0];
     dateInput.value = today;
+    dateSelectorContainer.appendChild(dateInput);
 
-    const button = document.createElement('button');
-    button.id = 'updateCharts';
-    button.innerText = 'Atualizar';
-    button.addEventListener('click', () => fetchData(dateInput.value));
+    document.body.prepend(dateSelectorContainer);
 
-    dateSelectorContainer.append(dateInput, button);
-    document.querySelector('.graphs-area').prepend(dateSelectorContainer);
+    const updateData = () => fetchData(dateInput.value);
 
-    fetchData(today);
+    updateData();
+    dateInput.addEventListener('change', updateData);
+    setInterval(updateData, 30000);
 });
